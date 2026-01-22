@@ -2,89 +2,136 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Milk Store Manager</title>
+  <title>Ramu Kiranam - Milk Store</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #f4f6f8;
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: linear-gradient(135deg, #e3f2fd, #fce4ec);
       margin: 0;
       padding: 16px;
     }
-    h1 {
+
+    .header {
       text-align: center;
       margin-bottom: 20px;
     }
-    .card {
-      background: #fff;
-      border-radius: 10px;
-      padding: 16px;
-      margin-bottom: 12px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+
+    .header h1 {
+      margin: 0;
+      color: #0d47a1;
+      font-size: 28px;
+      letter-spacing: 1px;
     }
+
+    .header .subtitle {
+      margin-top: 6px;
+      font-size: 16px;
+      color: #444;
+    }
+
+    .card {
+      background: #ffffff;
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 14px;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.12);
+    }
+
     .row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-top: 8px;
+      margin-top: 10px;
     }
-    input[type="number"], input[type="date"] {
-      width: 110px;
-      padding: 6px;
+
+    input[type="number"],
+    input[type="date"] {
+      width: 120px;
+      padding: 8px;
       font-size: 16px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      outline: none;
     }
+
+    input:focus {
+      border-color: #1e88e5;
+      box-shadow: 0 0 6px rgba(30,136,229,0.3);
+    }
+
     .price {
-      color: #555;
+      color: #666;
       font-size: 14px;
+      margin-top: 4px;
     }
+
     .total {
       font-weight: bold;
-      color: #1e88e5;
+      color: #2e7d32;
+      font-size: 16px;
     }
-    .grand-total {
-      background: #1e88e5;
-      color: #fff;
-      padding: 16px;
-      border-radius: 10px;
-      text-align: center;
-      font-size: 20px;
-      margin-top: 20px;
-    }
+
     button {
       width: 100%;
-      padding: 12px;
+      padding: 14px;
       font-size: 16px;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
       border: none;
-      border-radius: 8px;
-      background: #1e88e5;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #1e88e5, #1565c0);
       color: #fff;
       cursor: pointer;
+      font-weight: bold;
+      letter-spacing: 0.5px;
     }
+
     button.secondary {
-      background: #555;
+      background: linear-gradient(135deg, #757575, #424242);
+    }
+
+    .grand-total {
+      background: linear-gradient(135deg, #43a047, #1b5e20);
+      color: #fff;
+      padding: 18px;
+      border-radius: 16px;
+      text-align: center;
+      font-size: 22px;
+      font-weight: bold;
+      margin-top: 22px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
     }
   </style>
 </head>
+
 <body>
 
-<h1>Milk Store Manager</h1>
-
-<div class="card">
-  <strong>Select Date</strong>
-  <div class="row">
-    <input type="date" id="entryDate">
+  <!-- HEADER -->
+  <div class="header">
+    <h1>🛒 Ramu Kiranam 🥛</h1>
+    <div class="subtitle">Daily Milk Purchase Calculator</div>
   </div>
-</div>
 
-<button id="saveBtn">Save Today’s Entry</button>
-<button id="loadBtn" class="secondary">Load / Edit Selected Date</button>
+  <!-- DATE -->
+  <div class="card">
+    <strong>📅 Today</strong>
+    <div class="row">
+      <input type="date" id="entryDate">
+    </div>
+  </div>
 
-<div id="products"></div>
+  <!-- BUTTONS -->
+  <button id="saveBtn">💾 Save Today’s Entry</button>
+  <button id="loadBtn" class="secondary">✏️ Load / Edit Selected Date</button>
 
-<div class="grand-total">
-  Total Amount to Pay: ₹<span id="grandTotal">0</span>
-</div>
+  <!-- PRODUCTS -->
+  <div id="products"></div>
+
+  <!-- TOTAL -->
+  <div class="grand-total">
+    💰 Total Amount to Pay: ₹<span id="grandTotal">0</span>
+  </div>
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
@@ -110,7 +157,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const card = document.createElement("div");
     card.className = "card product-card";
     card.innerHTML = `
-      <strong>${product.name}</strong>
+      <strong>🥛 ${product.name}</strong>
       <div class="price">Price: ₹${product.price}</div>
       <div class="row">
         Quantity:
@@ -149,4 +196,46 @@ document.addEventListener("DOMContentLoaded", function () {
       const name = card.querySelector("strong").innerText;
       const input = card.querySelector("input");
       const price = Number(input.dataset.price);
-      const qt
+      const qty = Number(input.value) || 0;
+      const total = qty * price;
+
+      if (qty > 0) {
+        day.items.push({ name, qty });
+        day.total += total;
+      }
+    });
+
+    data[date] = day;
+    localStorage.setItem("milkData", JSON.stringify(data));
+    alert("Saved successfully for " + date);
+  };
+
+  document.getElementById("loadBtn").onclick = function () {
+    const date = document.getElementById("entryDate").value;
+    let data = JSON.parse(localStorage.getItem("milkData")) || {};
+    let day = data[date];
+
+    document.querySelectorAll(".product-card input").forEach(i => i.value = 0);
+
+    if (!day) {
+      calculate();
+      return alert("No data found for this date");
+    }
+
+    day.items.forEach(item => {
+      document.querySelectorAll(".product-card").forEach(card => {
+        if (card.querySelector("strong").innerText === item.name) {
+          card.querySelector("input").value = item.qty;
+        }
+      });
+    });
+
+    calculate();
+    alert("Loaded for editing");
+  };
+
+});
+</script>
+
+</body>
+</html>
