@@ -5,6 +5,10 @@
   <title>Ramu Kiranam - Milk Store</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <!-- Firebase COMPAT SDKs (IMPORTANT) -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
   <style>
     body {
       font-family: "Segoe UI", Arial, sans-serif;
@@ -22,12 +26,10 @@
       margin: 0;
       color: #0d47a1;
       font-size: 28px;
-      letter-spacing: 1px;
     }
 
-    .header .subtitle {
+    .subtitle {
       margin-top: 6px;
-      font-size: 16px;
       color: #444;
     }
 
@@ -53,42 +55,33 @@
       font-size: 16px;
       border-radius: 8px;
       border: 1px solid #ccc;
-      outline: none;
-    }
-
-    input:focus {
-      border-color: #1e88e5;
-      box-shadow: 0 0 6px rgba(30,136,229,0.3);
-    }
-
-    .price {
-      color: #666;
-      font-size: 14px;
-      margin-top: 4px;
-    }
-
-    .total {
-      font-weight: bold;
-      color: #2e7d32;
-      font-size: 16px;
     }
 
     button {
       width: 100%;
       padding: 14px;
       font-size: 16px;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
       border: none;
       border-radius: 12px;
       background: linear-gradient(135deg, #1e88e5, #1565c0);
       color: #fff;
-      cursor: pointer;
       font-weight: bold;
-      letter-spacing: 0.5px;
+      cursor: pointer;
     }
 
     button.secondary {
       background: linear-gradient(135deg, #757575, #424242);
+    }
+
+    .price {
+      color: #666;
+      font-size: 14px;
+    }
+
+    .total {
+      font-weight: bold;
+      color: #2e7d32;
     }
 
     .grand-total {
@@ -99,8 +92,7 @@
       text-align: center;
       font-size: 22px;
       font-weight: bold;
-      margin-top: 22px;
-      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+      margin-top: 20px;
     }
   </style>
 </head>
@@ -136,6 +128,24 @@
 <script>
 document.addEventListener("DOMContentLoaded", function () {
 
+  /* ================= FIREBASE CONFIG =================
+     🔴 REPLACE THIS WITH *YOUR* firebaseConfig
+  ==================================================== */
+ const firebaseConfig = {
+    apiKey: "AIzaSyDuT-uXEbATKcPd3Smk1oysNih_lplFCwo",
+    authDomain: "ramu-kiranam-milk.firebaseapp.com",
+    projectId: "ramu-kiranam-milk",
+    storageBucket: "ramu-kiranam-milk.firebasestorage.app",
+    messagingSenderId: "19072712472",
+    appId: "1:19072712472:web:e9b871c2c02bc927df686d",
+    measurementId: "G-ELENETG5EY"
+  };
+
+
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
   // Set today's date
   document.getElementById("entryDate").value =
     new Date().toISOString().split("T")[0];
@@ -143,7 +153,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const products = [
     { name: "Thirumala Gold 500ml", price: 37 },
     { name: "Mulkanoor Gold 500ml", price: 35.5 },
-    { name: "Thirumala & Mulkanoor Plain 500ml", price: 27 },
+    { name: "Thirumala & Mulaknoor Plain 500ml", price: 27 },
     { name: "Mulkanoor Gold 200ml", price: 13 },
     { name: "Curd 1kg", price: 55 },
     { name: "Curd 500gm", price: 28 },
@@ -184,44 +194,55 @@ document.addEventListener("DOMContentLoaded", function () {
     input.addEventListener("input", calculate);
   });
 
-  document.getElementById("saveBtn").onclick = function () {
+  // SAVE TO FIREBASE
+  document.getElementById("saveBtn").onclick = async function () {
     const date = document.getElementById("entryDate").value;
     if (!date) return alert("Select date");
 
-    let data = JSON.parse(localStorage.getItem("milkData")) || {};
-    let day = { items: [], total: 0 };
+    let items = [];
+    let total = 0;
 
     document.querySelectorAll(".product-card").forEach(card => {
       const name = card.querySelector("strong").innerText;
       const input = card.querySelector("input");
       const price = Number(input.dataset.price);
       const qty = Number(input.value) || 0;
-      const total = qty * price;
+      const amount = qty * price;
 
       if (qty > 0) {
-        day.items.push({ name, qty });
-        day.total += total;
+        items.push({ name, qty, price, amount });
+        total += amount;
       }
     });
 
-    data[date] = day;
-    localStorage.setItem("milkData", JSON.stringify(data));
-    alert("Saved successfully for " + date);
+    await db.collection("milkEntries").doc(date).set({
+      date,
+      items,
+      total,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    alert("Saved to server successfully");
   };
 
-  document.getElementById("loadBtn").onclick = function () {
+  // LOAD FROM FIREBASE
+  document.getElementById("loadBtn").onclick = async function () {
     const date = document.getElementById("entryDate").value;
-    let data = JSON.parse(localStorage.getItem("milkData")) || {};
-    let day = data[date];
+    if (!date) return alert("Select date");
 
     document.querySelectorAll(".product-card input").forEach(i => i.value = 0);
 
-    if (!day) {
+    const docRef = db.collection("milkEntries").doc(date);
+    const snap = await docRef.get();
+
+    if (!snap.exists) {
       calculate();
       return alert("No data found for this date");
     }
 
-    day.items.forEach(item => {
+    const data = snap.data();
+
+    data.items.forEach(item => {
       document.querySelectorAll(".product-card").forEach(card => {
         if (card.querySelector("strong").innerText === item.name) {
           card.querySelector("input").value = item.qty;
@@ -230,7 +251,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     calculate();
-    alert("Loaded for editing");
+    alert("Loaded from server");
   };
 
 });
