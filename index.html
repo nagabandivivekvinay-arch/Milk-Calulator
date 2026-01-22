@@ -29,7 +29,7 @@
       margin-top: 8px;
     }
     input[type="number"], input[type="date"] {
-      width: 100px;
+      width: 110px;
       padding: 6px;
       font-size: 16px;
     }
@@ -70,7 +70,6 @@
 
 <h1>Milk Store Manager</h1>
 
-<!-- DATE SELECTION -->
 <div class="card">
   <strong>Select Date</strong>
   <div class="row">
@@ -78,23 +77,22 @@
   </div>
 </div>
 
-<button onclick="saveDayData()">Save Today’s Entry</button>
-<button class="secondary" onclick="loadDayData()">Load / Edit Selected Date</button>
+<button id="saveBtn">Save Today’s Entry</button>
+<button id="loadBtn" class="secondary">Load / Edit Selected Date</button>
 
-<!-- PRODUCTS -->
 <div id="products"></div>
 
-<!-- GRAND TOTAL -->
 <div class="grand-total">
   Total Amount to Pay: ₹<span id="grandTotal">0</span>
 </div>
 
 <script>
-  // Auto set today's date
+document.addEventListener("DOMContentLoaded", function () {
+
+  // Set today's date
   document.getElementById("entryDate").value =
     new Date().toISOString().split("T")[0];
 
-  // PRODUCTS & PRICES
   const products = [
     { name: "Thirumala Gold 500ml", price: 37 },
     { name: "Thirumala Plain 500ml", price: 27 },
@@ -108,7 +106,6 @@
 
   const container = document.getElementById("products");
 
-  // CREATE PRODUCT UI
   products.forEach(product => {
     const card = document.createElement("div");
     card.className = "card product-card";
@@ -117,97 +114,39 @@
       <div class="price">Price: ₹${product.price}</div>
       <div class="row">
         Quantity:
-        <input type="number" min="0" value="0"
-               data-price="${product.price}"
-               oninput="calculate()">
+        <input type="number" min="0" value="0" data-price="${product.price}">
         <span class="total">₹<span class="itemTotal">0</span></span>
       </div>
     `;
     container.appendChild(card);
   });
 
-  // CALCULATE TOTAL
   function calculate() {
     let grandTotal = 0;
-
     document.querySelectorAll(".product-card").forEach(card => {
-      const input = card.querySelector("input[type='number']");
+      const input = card.querySelector("input");
       const price = Number(input.dataset.price);
       const qty = Number(input.value) || 0;
       const total = qty * price;
-
       card.querySelector(".itemTotal").innerText = total;
       grandTotal += total;
     });
-
     document.getElementById("grandTotal").innerText = grandTotal;
   }
 
-  // SAVE DATA FOR A DAY
-  function saveDayData() {
-    const date = document.getElementById("entryDate").value;
-    if (!date) {
-      alert("Please select a date");
-      return;
-    }
+  document.querySelectorAll(".product-card input").forEach(input => {
+    input.addEventListener("input", calculate);
+  });
 
-    let dayData = {
-      date: date,
-      items: [],
-      total: 0
-    };
+  document.getElementById("saveBtn").onclick = function () {
+    const date = document.getElementById("entryDate").value;
+    if (!date) return alert("Select date");
+
+    let data = JSON.parse(localStorage.getItem("milkData")) || {};
+    let day = { items: [], total: 0 };
 
     document.querySelectorAll(".product-card").forEach(card => {
       const name = card.querySelector("strong").innerText;
-      const input = card.querySelector("input[type='number']");
+      const input = card.querySelector("input");
       const price = Number(input.dataset.price);
-      const qty = Number(input.value) || 0;
-      const total = qty * price;
-
-      if (qty > 0) {
-        dayData.items.push({ name, qty, price, total });
-        dayData.total += total;
-      }
-    });
-
-    let allData = JSON.parse(localStorage.getItem("milkData")) || {};
-    allData[date] = dayData;
-
-    localStorage.setItem("milkData", JSON.stringify(allData));
-
-    alert("Saved successfully for " + date);
-  }
-
-  // LOAD / EDIT DATA
-  function loadDayData() {
-    const date = document.getElementById("entryDate").value;
-    let allData = JSON.parse(localStorage.getItem("milkData")) || {};
-    let dayData = allData[date];
-
-    // Reset quantities
-    document.querySelectorAll(".product-card input").forEach(input => {
-      input.value = 0;
-    });
-
-    if (!dayData) {
-      calculate();
-      alert("No data found for this date");
-      return;
-    }
-
-    dayData.items.forEach(item => {
-      document.querySelectorAll(".product-card").forEach(card => {
-        const name = card.querySelector("strong").innerText;
-        if (name === item.name) {
-          card.querySelector("input").value = item.qty;
-        }
-      });
-    });
-
-    calculate();
-    alert("Data loaded for editing");
-  }
-</script>
-
-</body>
-</html>
+      const qt
