@@ -5,7 +5,7 @@
   <title>Ramu Kiranam - Milk Store</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Firebase COMPAT SDKs (IMPORTANT) -->
+  <!-- Firebase COMPAT SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
@@ -120,6 +120,15 @@
   <!-- PRODUCTS -->
   <div id="products"></div>
 
+  <!-- OIL TIN MINUS -->
+  <div class="card">
+    <strong>🛢️ Oil Tin Minus</strong>
+    <div class="row">
+      Amount:
+      <input type="number" id="oilMinus" min="0" value="0">
+    </div>
+  </div>
+
   <!-- TOTAL -->
   <div class="grand-total">
     💰 Total Amount to Pay: ₹<span id="grandTotal">0</span>
@@ -128,25 +137,18 @@
 <script>
 document.addEventListener("DOMContentLoaded", function () {
 
-  /* ================= FIREBASE CONFIG =================
-     🔴 REPLACE THIS WITH *YOUR* firebaseConfig
-  ==================================================== */
- const firebaseConfig = {
+  const firebaseConfig = {
     apiKey: "AIzaSyDuT-uXEbATKcPd3Smk1oysNih_lplFCwo",
     authDomain: "ramu-kiranam-milk.firebaseapp.com",
     projectId: "ramu-kiranam-milk",
     storageBucket: "ramu-kiranam-milk.firebasestorage.app",
     messagingSenderId: "19072712472",
-    appId: "1:19072712472:web:e9b871c2c02bc927df686d",
-    measurementId: "G-ELENETG5EY"
+    appId: "1:19072712472:web:e9b871c2c02bc927df686d"
   };
 
-
-  // Initialize Firebase
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
 
-  // Set today's date
   document.getElementById("entryDate").value =
     new Date().toISOString().split("T")[0];
 
@@ -180,6 +182,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function calculate() {
     let grandTotal = 0;
+
     document.querySelectorAll(".product-card").forEach(card => {
       const input = card.querySelector("input");
       const price = Number(input.dataset.price);
@@ -188,6 +191,11 @@ document.addEventListener("DOMContentLoaded", function () {
       card.querySelector(".itemTotal").innerText = total;
       grandTotal += total;
     });
+
+    const oilMinus = Number(document.getElementById("oilMinus").value) || 0;
+    grandTotal -= oilMinus;
+    if (grandTotal < 0) grandTotal = 0;
+
     document.getElementById("grandTotal").innerText = grandTotal;
   }
 
@@ -195,13 +203,15 @@ document.addEventListener("DOMContentLoaded", function () {
     input.addEventListener("input", calculate);
   });
 
-  // SAVE TO FIREBASE
+  document.getElementById("oilMinus").addEventListener("input", calculate);
+
   document.getElementById("saveBtn").onclick = async function () {
     const date = document.getElementById("entryDate").value;
     if (!date) return alert("Select date");
 
     let items = [];
     let total = 0;
+    const oilMinus = Number(document.getElementById("oilMinus").value) || 0;
 
     document.querySelectorAll(".product-card").forEach(card => {
       const name = card.querySelector("strong").innerText;
@@ -219,23 +229,22 @@ document.addEventListener("DOMContentLoaded", function () {
     await db.collection("milkEntries").doc(date).set({
       date,
       items,
-      total,
+      oilMinus,
+      total: total - oilMinus,
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
 
     alert("Saved to server successfully");
   };
 
-  // LOAD FROM FIREBASE
   document.getElementById("loadBtn").onclick = async function () {
     const date = document.getElementById("entryDate").value;
     if (!date) return alert("Select date");
 
     document.querySelectorAll(".product-card input").forEach(i => i.value = 0);
+    document.getElementById("oilMinus").value = 0;
 
-    const docRef = db.collection("milkEntries").doc(date);
-    const snap = await docRef.get();
-
+    const snap = await db.collection("milkEntries").doc(date).get();
     if (!snap.exists) {
       calculate();
       return alert("No data found for this date");
@@ -251,6 +260,7 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     });
 
+    document.getElementById("oilMinus").value = data.oilMinus || 0;
     calculate();
     alert("Loaded from server");
   };
