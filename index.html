@@ -1,144 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Ramu Kiranam - Milk Store</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<style>
+body {
+  font-family: "Times New Roman", Times, serif;
+  background: linear-gradient(135deg, #e3f2fd, #fce4ec);
+  margin: 0;
+  padding: 16px;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.card {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 14px;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.12);
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+}
+
+input {
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+button {
+  width: 100%;
+  padding: 14px;
+  font-size: 16px;
+  margin-bottom: 10px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #1e88e5, #1565c0);
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.grand-total {
+  background: linear-gradient(135deg, #43a047, #1b5e20);
+  color: #fff;
+  padding: 18px;
+  border-radius: 16px;
+  text-align: center;
+  font-size: 22px;
+  font-weight: bold;
+  margin-top: 20px;
+}
+
+#mainContent {
+  display: none;
+}
+
+#loginBox {
+  max-width: 300px;
+  margin: 80px auto;
+  text-align: center;
+}
+</style>
+</head>
+
+<body>
+
+<!-- LOGIN BOX -->
+<div id="loginBox" class="card">
+  <h2>🔐 Admin Login</h2>
+  <input type="password" id="password" placeholder="Enter Password"><br><br>
+  <button onclick="checkPassword()">Login</button>
+</div>
+
+<!-- MAIN WEBSITE -->
+<div id="mainContent">
+
+<div class="header">
+  <h1>🛒 Ramu Kiranam 🥛</h1>
+  <div>Daily Milk Purchase Calculator</div>
+</div>
+
+<div class="card">
+  <input type="date" id="entryDate">
+</div>
+
+<button id="saveBtn">💾 Save Today’s Entry</button>
+<button id="loadBtn">📂 Load Entry</button>
+
+<div id="products"></div>
+
+<div class="card">
+  🛢️ Oil Tin Minus:
+  <input type="number" id="oilMinus" value="0">
+</div>
+
+<div class="grand-total">
+  💰 Total Amount: ₹<span id="grandTotal">0</span>
+</div>
+
+</div>
+
 <script>
-document.addEventListener("DOMContentLoaded", function () {
 
-  // 🔐 CHANGE THIS PASSWORD
-  const ADMIN_PASSWORD = "1234";
+// 🔐 CHANGE PASSWORD HERE
+const ADMIN_PASSWORD = "1234";
 
-  const entered = prompt("🔐 Enter Admin Password");
+function checkPassword() {
+  const entered = document.getElementById("password").value;
 
-  if (entered !== ADMIN_PASSWORD) {
-    alert("❌ Wrong Password");
-    document.body.innerHTML = "<h2 style='text-align:center;margin-top:50px;'>Access Denied ❌</h2>";
-    return;
-  } else {
+  if (entered === ADMIN_PASSWORD) {
     alert("✅ Correct Password");
+    document.getElementById("loginBox").style.display = "none";
+    document.getElementById("mainContent").style.display = "block";
+  } else {
+    alert("❌ Wrong Password");
   }
+}
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyDuT-uXEbATKcPd3Smk1oysNih_lplFCwo",
-    authDomain: "ramu-kiranam-milk.firebaseapp.com",
-    projectId: "ramu-kiranam-milk",
-    storageBucket: "ramu-kiranam-milk.firebasestorage.app",
-    messagingSenderId: "19072712472",
-    appId: "1:19072712472:web:e9b871c2c02bc927df686d"
-  };
+// Firebase
+const firebaseConfig = {
+  apiKey: "AIzaSyDuT-uXEbATKcPd3Smk1oysNih_lplFCwo",
+  authDomain: "ramu-kiranam-milk.firebaseapp.com",
+  projectId: "ramu-kiranam-milk"
+};
 
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
-  document.getElementById("entryDate").value =
-    new Date().toISOString().split("T")[0];
+document.getElementById("entryDate").value =
+  new Date().toISOString().split("T")[0];
 
-  const products = [
-    { name: "Thirumala Gold 500ml", price: 37 },
-    { name: "Mulkanoor Gold 500ml", price: 35.5 },
-    { name: "Thirumala & Mulaknoor Plain 500ml", price: 27 },
-    { name: "Mulkanoor Gold 200ml", price: 13 },
-    { name: "Curd 1kg", price: 48 },
-    { name: "Sangam Curd 500gm", price: 28 },
-    { name: "Mukunda Curd 500gm", price: 24 },
-    { name: "Curd 175gm", price: 8 }
-  ];
+const products = [
+  { name: "Thirumala Gold 500ml", price: 37 },
+  { name: "Mulkanoor Gold 500ml", price: 35.5 },
+  { name: "Plain 500ml", price: 27 },
+  { name: "Gold 200ml", price: 13 },
+  { name: "Curd 1kg", price: 48 }
+];
 
-  const container = document.getElementById("products");
+const container = document.getElementById("products");
 
-  products.forEach(product => {
-    const card = document.createElement("div");
-    card.className = "card product-card";
-    card.innerHTML = `
-      <strong>🥛 ${product.name}</strong>
-      <div class="price">Price: ₹${product.price}</div>
-      <div class="row">
-        Quantity:
-        <input type="number" min="0" value="0" data-price="${product.price}">
-        <span class="total">₹<span class="itemTotal">0</span></span>
-      </div>
-    `;
-    container.appendChild(card);
+products.forEach(product => {
+  const card = document.createElement("div");
+  card.className = "card";
+  card.innerHTML = `
+    <strong>🥛 ${product.name}</strong><br>
+    Price: ₹${product.price}<br>
+    Quantity:
+    <input type="number" min="0" value="0" data-price="${product.price}">
+  `;
+  container.appendChild(card);
+});
+
+function calculate() {
+  let total = 0;
+
+  document.querySelectorAll("#products input").forEach(input => {
+    total += (Number(input.value) || 0) * Number(input.dataset.price);
   });
 
-  function calculate() {
-    let grandTotal = 0;
+  total -= Number(document.getElementById("oilMinus").value) || 0;
+  if (total < 0) total = 0;
 
-    document.querySelectorAll(".product-card").forEach(card => {
-      const input = card.querySelector("input");
+  document.getElementById("grandTotal").innerText = total;
+}
+
+document.addEventListener("input", calculate);
+
+document.getElementById("saveBtn").onclick = async function () {
+  const date = document.getElementById("entryDate").value;
+
+  let items = [];
+  let total = 0;
+
+  document.querySelectorAll("#products input").forEach((input, index) => {
+    const qty = Number(input.value) || 0;
+    if (qty > 0) {
       const price = Number(input.dataset.price);
-      const qty = Number(input.value) || 0;
-      const total = qty * price;
-      card.querySelector(".itemTotal").innerText = total;
-      grandTotal += total;
-    });
+      items.push({ name: products[index].name, qty, price });
+      total += qty * price;
+    }
+  });
 
-    const oilMinus = Number(document.getElementById("oilMinus").value) || 0;
-    grandTotal -= oilMinus;
-    if (grandTotal < 0) grandTotal = 0;
+  const oilMinus = Number(document.getElementById("oilMinus").value) || 0;
 
-    document.getElementById("grandTotal").innerText = grandTotal;
+  await db.collection("milkEntries").doc(date).set({
+    date,
+    items,
+    oilMinus,
+    total: total - oilMinus
+  });
+
+  alert("💾 Saved Successfully");
+};
+
+document.getElementById("loadBtn").onclick = async function () {
+  const date = document.getElementById("entryDate").value;
+
+  const snap = await db.collection("milkEntries").doc(date).get();
+  if (!snap.exists) {
+    alert("No Data Found");
+    return;
   }
 
-  document.addEventListener("input", calculate);
+  const data = snap.data();
 
-  document.getElementById("saveBtn").onclick = async function () {
+  document.querySelectorAll("#products input").forEach(i => i.value = 0);
 
-    const date = document.getElementById("entryDate").value;
-    if (!date) return alert("Select date");
-
-    let items = [];
-    let total = 0;
-    const oilMinus = Number(document.getElementById("oilMinus").value) || 0;
-
-    document.querySelectorAll(".product-card").forEach(card => {
-      const name = card.querySelector("strong").innerText;
-      const input = card.querySelector("input");
-      const price = Number(input.dataset.price);
-      const qty = Number(input.value) || 0;
-      const amount = qty * price;
-
-      if (qty > 0) {
-        items.push({ name, qty, price, amount });
-        total += amount;
+  data.items.forEach(item => {
+    products.forEach((p, index) => {
+      if (p.name === item.name) {
+        document.querySelectorAll("#products input")[index].value = item.qty;
       }
     });
+  });
 
-    await db.collection("milkEntries").doc(date).set({
-      date,
-      items,
-      oilMinus,
-      total: total - oilMinus,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
+  document.getElementById("oilMinus").value = data.oilMinus || 0;
+  calculate();
 
-    alert("💾 Saved Successfully ✅");
-  };
+  alert("📂 Loaded Successfully");
+};
 
-  document.getElementById("loadBtn").onclick = async function () {
-
-    const date = document.getElementById("entryDate").value;
-    if (!date) return alert("Select date");
-
-    document.querySelectorAll(".product-card input").forEach(i => i.value = 0);
-    document.getElementById("oilMinus").value = 0;
-
-    const snap = await db.collection("milkEntries").doc(date).get();
-    if (!snap.exists) {
-      calculate();
-      return alert("No data found ❌");
-    }
-
-    const data = snap.data();
-
-    data.items.forEach(item => {
-      document.querySelectorAll(".product-card").forEach(card => {
-        if (card.querySelector("strong").innerText === item.name) {
-          card.querySelector("input").value = item.qty;
-        }
-      });
-    });
-
-    document.getElementById("oilMinus").value = data.oilMinus || 0;
-    calculate();
-    alert("📂 Loaded Successfully ✅");
-  };
-
-});
 </script>
+
+</body>
+</html>
