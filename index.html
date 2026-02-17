@@ -13,6 +13,7 @@ body { font-family: Arial; background:#f4f6f9; padding:15px; }
 .card { background:white; padding:15px; margin-bottom:12px; border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,0.1);}
 button { padding:10px; width:100%; margin-top:5px; border:none; border-radius:8px; background:#1976d2; color:white; cursor:pointer;}
 .grand-total { background:#2e7d32; color:white; padding:15px; border-radius:12px; font-size:20px; text-align:center;}
+.hidden { display:none; }
 </style>
 </head>
 
@@ -20,14 +21,16 @@ button { padding:10px; width:100%; margin-top:5px; border:none; border-radius:8p
 
 <h2>🛒 Ramu Kiranam 🥛</h2>
 
-<div class="card">
+<!-- PASSWORD LOGIN -->
+<div class="card" id="loginCard">
 <h3>Enter Admin Password</h3>
 <input type="password" id="adminPass" placeholder="Enter Password">
-<button onclick="checkPassword()">Unlock</button>
+<button onclick="unlock()">Unlock</button>
 <p id="status"></p>
 </div>
 
-<div id="mainContent" style="display:none;">
+<!-- MAIN CONTENT -->
+<div id="mainContent" class="hidden">
 
 <div class="card">
 <input type="date" id="entryDate">
@@ -51,18 +54,21 @@ Total ₹ <span id="grandTotal">0</span>
 
 <script>
 
-const ADMIN_PASSWORD = "1234";  // 🔥 CHANGE THIS TO YOUR PASSWORD
+// 🔐 CHANGE THIS PASSWORD
+const ADMIN_PASSWORD = "1234";
 
-function checkPassword() {
+function unlock() {
   const entered = document.getElementById("adminPass").value;
+
   if (entered === ADMIN_PASSWORD) {
-    document.getElementById("mainContent").style.display = "block";
-    document.getElementById("status").innerText = "Unlocked ✅";
+    document.getElementById("loginCard").style.display = "none";
+    document.getElementById("mainContent").classList.remove("hidden");
   } else {
     document.getElementById("status").innerText = "Wrong Password ❌";
   }
 }
 
+// Firebase Config
 const firebaseConfig = {
   apiKey: "AIzaSyDuT-uXEbATKcPd3Smk1oysNih_lplFCwo",
   authDomain: "ramu-kiranam-milk.firebaseapp.com",
@@ -96,65 +102,4 @@ products.forEach(p=>{
   Price ₹${p.price}<br>
   Quantity <input type="number" min="0" value="0" data-price="${p.price}">
   `;
-  container.appendChild(div);
-});
-
-function calculate(){
-  let total=0;
-  document.querySelectorAll("#products input").forEach(i=>{
-    total+=(Number(i.value)||0)*Number(i.dataset.price);
-  });
-  total-=Number(document.getElementById("oilMinus").value)||0;
-  if(total<0) total=0;
-  document.getElementById("grandTotal").innerText=total;
-}
-
-document.addEventListener("input",calculate);
-
-document.getElementById("saveBtn").onclick=async()=>{
-  const date=document.getElementById("entryDate").value;
-  let items=[]; let total=0;
-
-  document.querySelectorAll("#products input").forEach((i,index)=>{
-    const qty=Number(i.value)||0;
-    if(qty>0){
-      const price=Number(i.dataset.price);
-      items.push({name:products[index].name,qty,price});
-      total+=qty*price;
-    }
-  });
-
-  const oilMinus=Number(document.getElementById("oilMinus").value)||0;
-
-  await db.collection("milkEntries").doc(date).set({
-    date,items,oilMinus,total:total-oilMinus
-  });
-
-  alert("Saved Successfully");
-};
-
-document.getElementById("loadBtn").onclick=async()=>{
-  const date=document.getElementById("entryDate").value;
-  const snap=await db.collection("milkEntries").doc(date).get();
-  if(!snap.exists) return alert("No Data");
-
-  const data=snap.data();
-  document.querySelectorAll("#products input").forEach(i=>i.value=0);
-
-  data.items.forEach(item=>{
-    products.forEach((p,index)=>{
-      if(p.name===item.name){
-        document.querySelectorAll("#products input")[index].value=item.qty;
-      }
-    });
-  });
-
-  document.getElementById("oilMinus").value=data.oilMinus||0;
-  calculate();
-  alert("Loaded");
-};
-
-</script>
-
-</body>
-</html>
+  container.appendChild(div)
