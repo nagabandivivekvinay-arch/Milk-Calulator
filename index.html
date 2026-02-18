@@ -2,78 +2,111 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Ramu Kiranam - Milk Store</title>
+<title>🛒 Ramu Kiranam - Milk Store</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <style>
 body {
-  font-family: "Times New Roman", Times, serif;
-  background: linear-gradient(135deg, #e3f2fd, #fce4ec);
+  font-family: "Poppins", "Segoe UI", sans-serif;
+  background: linear-gradient(135deg, #eef2f3, #dfe9f3);
   margin: 0;
-  padding: 16px;
+  padding: 18px;
+  line-height: 1.6;
 }
 
 .header {
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 25px;
+}
+
+.header h1 {
+  font-size: 32px;
+  color: #1a237e;
+  margin-bottom: 6px;
+}
+
+.header div {
+  font-size: 18px;
+  color: #37474f;
 }
 
 .card {
   background: #ffffff;
-  border-radius: 14px;
-  padding: 16px;
-  margin-bottom: 14px;
-  box-shadow: 0 6px 14px rgba(0,0,0,0.12);
+  border-radius: 18px;
+  padding: 18px;
+  margin-bottom: 18px;
+  box-shadow: 0 8px 18px rgba(0,0,0,0.08);
 }
 
 .row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 10px;
+  margin-top: 12px;
 }
 
 input[type="number"],
 input[type="date"],
 input[type="password"] {
   padding: 8px;
-  font-size: 16px;
+  font-size: 15px;
   border-radius: 8px;
   border: 1px solid #ccc;
+}
+
+input[type="number"] {
+  width: 70px;
+  text-align: center;
 }
 
 button {
   width: 100%;
   padding: 14px;
-  font-size: 16px;
-  margin-bottom: 10px;
+  font-size: 17px;
+  margin-bottom: 12px;
   border: none;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #1e88e5, #1565c0);
+  border-radius: 14px;
+  background: linear-gradient(135deg, #1976d2, #0d47a1);
   color: #fff;
   font-weight: bold;
   cursor: pointer;
 }
 
-.grand-total {
-  background: linear-gradient(135deg, #43a047, #1b5e20);
-  color: #fff;
-  padding: 18px;
-  border-radius: 16px;
-  text-align: center;
-  font-size: 22px;
+button:hover {
+  opacity: 0.9;
+}
+
+.amount-box {
+  font-size: 18px;
   font-weight: bold;
-  margin-top: 20px;
+  color: #ffffff;
+  background: linear-gradient(135deg, #43a047, #1b5e20);
+  padding: 6px 10px;
+  border-radius: 10px;
+  min-width: 80px;
+  text-align: center;
+}
+
+.grand-total {
+  background: linear-gradient(135deg, #ff6f00, #e65100);
+  color: #fff;
+  padding: 22px;
+  border-radius: 18px;
+  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
+  margin-top: 25px;
 }
 
 #mainContent { display:none; }
 
 #loginBox {
   max-width: 350px;
-  margin: 100px auto;
+  margin: 120px auto;
   text-align: center;
 }
 </style>
@@ -81,17 +114,19 @@ button {
 
 <body>
 
+<!-- LOGIN -->
 <div id="loginBox" class="card">
-  <h2>🔐 Enter Admin Password</h2>
+  <h2>🔐 Admin Access</h2>
   <input type="password" id="password" placeholder="Enter Password"><br><br>
   <button onclick="checkPassword()">Login</button>
 </div>
 
+<!-- MAIN -->
 <div id="mainContent">
 
 <div class="header">
   <h1>🛒 Ramu Kiranam 🥛</h1>
-  <div>Daily Milk Purchase Calculator</div>
+  <div>📊 Daily Milk Purchase Calculator</div>
 </div>
 
 <div class="card">
@@ -117,12 +152,12 @@ button {
 
 <script>
 
+// PASSWORD
 const ADMIN_PASSWORD = "1234";
 
 function checkPassword() {
   const entered = document.getElementById("password").value;
   if (entered === ADMIN_PASSWORD) {
-    alert("✅ Correct Password");
     document.getElementById("loginBox").style.display = "none";
     document.getElementById("mainContent").style.display = "block";
   } else {
@@ -130,6 +165,7 @@ function checkPassword() {
   }
 }
 
+// FIREBASE
 const firebaseConfig = {
   apiKey: "AIzaSyDuT-uXEbATKcPd3Smk1oysNih_lplFCwo",
   authDomain: "ramu-kiranam-milk.firebaseapp.com",
@@ -142,7 +178,7 @@ const db = firebase.firestore();
 document.getElementById("entryDate").value =
   new Date().toISOString().split("T")[0];
 
-// EXACT OLD PRODUCT NAMES (MATCH FIRESTORE)
+// OLD EXACT PRODUCT NAMES
 const products = [
   { name: "🥛 Thirumala Gold 500ml", price: 37 },
   { name: "🥛 Mulkanoor Gold 500ml", price: 35.5 },
@@ -165,7 +201,7 @@ products.forEach(product => {
     <div class="row">
       Quantity:
       <input type="number" min="0" value="0" data-price="${product.price}">
-      <span>₹ <span class="itemTotal">0</span></span>
+      <div class="amount-box">₹ <span class="itemTotal">0</span></div>
     </div>
   `;
   container.appendChild(card);
@@ -192,7 +228,7 @@ function calculate() {
 
 document.addEventListener("input", calculate);
 
-// SAVE WITH AMOUNT
+// SAVE
 document.getElementById("saveBtn").onclick = async function () {
 
   const date = document.getElementById("entryDate").value;
@@ -228,7 +264,7 @@ document.getElementById("saveBtn").onclick = async function () {
   alert("💾 Saved Successfully");
 };
 
-// LOAD EXACT STRUCTURE
+// LOAD
 document.getElementById("loadBtn").onclick = async function () {
 
   const date = document.getElementById("entryDate").value;
