@@ -36,8 +36,11 @@ body {
   margin-top: 10px;
 }
 
-input {
+input[type="number"],
+input[type="date"],
+input[type="password"] {
   padding: 8px;
+  font-size: 16px;
   border-radius: 8px;
   border: 1px solid #ccc;
 }
@@ -66,13 +69,11 @@ button {
   margin-top: 20px;
 }
 
-#mainContent {
-  display: none;
-}
+#mainContent { display:none; }
 
 #loginBox {
-  max-width: 300px;
-  margin: 80px auto;
+  max-width: 350px;
+  margin: 100px auto;
   text-align: center;
 }
 </style>
@@ -80,14 +81,12 @@ button {
 
 <body>
 
-<!-- LOGIN BOX -->
 <div id="loginBox" class="card">
-  <h2>🔐 Admin Login</h2>
+  <h2>🔐 Enter Admin Password</h2>
   <input type="password" id="password" placeholder="Enter Password"><br><br>
   <button onclick="checkPassword()">Login</button>
 </div>
 
-<!-- MAIN WEBSITE -->
 <div id="mainContent">
 
 <div class="header">
@@ -96,11 +95,12 @@ button {
 </div>
 
 <div class="card">
+  📅 Date:
   <input type="date" id="entryDate">
 </div>
 
 <button id="saveBtn">💾 Save Today’s Entry</button>
-<button id="loadBtn">📂 Load Entry</button>
+<button id="loadBtn">📂 Load Selected Date</button>
 
 <div id="products"></div>
 
@@ -117,12 +117,10 @@ button {
 
 <script>
 
-// 🔐 CHANGE PASSWORD HERE
 const ADMIN_PASSWORD = "1234";
 
 function checkPassword() {
   const entered = document.getElementById("password").value;
-
   if (entered === ADMIN_PASSWORD) {
     alert("✅ Correct Password");
     document.getElementById("loginBox").style.display = "none";
@@ -132,7 +130,6 @@ function checkPassword() {
   }
 }
 
-// Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyDuT-uXEbATKcPd3Smk1oysNih_lplFCwo",
   authDomain: "ramu-kiranam-milk.firebaseapp.com",
@@ -145,17 +142,17 @@ const db = firebase.firestore();
 document.getElementById("entryDate").value =
   new Date().toISOString().split("T")[0];
 
+// EXACT OLD PRODUCT NAMES (MATCH FIRESTORE)
 const products = [
-  { name: "Thirumala Gold 500ml", price: 37 },
-  { name: "Mulkanoor Gold 500ml", price: 35.5 },
-  { name: "Thirumala & Mulaknoor Plain 500ml", price: 27 },
-  { name: "Mulkanoor Gold 200ml", price: 13 },
-  { name: "Curd 1kg", price: 48 },
-  { name: "Sangam Curd 500gm", price: 28 },
-  { name: "Mukunda Curd 500gm", price: 24 },
-  { name: "Curd 175gm", price: 8 }
+  { name: "🥛 Thirumala Gold 500ml", price: 37 },
+  { name: "🥛 Mulkanoor Gold 500ml", price: 35.5 },
+  { name: "🥛 Thirumala & Mulaknoor Plain 500ml", price: 27 },
+  { name: "🥛 Mulkanoor Gold 200ml", price: 13 },
+  { name: "🥛 Curd 1kg", price: 48 },
+  { name: "🥛 Sangam Curd 500gm", price: 28 },
+  { name: "🥛 Mukunda Curd 500gm", price: 24 },
+  { name: "🥛 Curd 175gm", price: 8 }
 ];
-
 
 const container = document.getElementById("products");
 
@@ -163,10 +160,13 @@ products.forEach(product => {
   const card = document.createElement("div");
   card.className = "card";
   card.innerHTML = `
-    <strong>🥛 ${product.name}</strong><br>
-    Price: ₹${product.price}<br>
-    Quantity:
-    <input type="number" min="0" value="0" data-price="${product.price}">
+    <strong>${product.name}</strong><br>
+    Price: ₹${product.price}
+    <div class="row">
+      Quantity:
+      <input type="number" min="0" value="0" data-price="${product.price}">
+      <span>₹ <span class="itemTotal">0</span></span>
+    </div>
   `;
   container.appendChild(card);
 });
@@ -174,11 +174,17 @@ products.forEach(product => {
 function calculate() {
   let total = 0;
 
-  document.querySelectorAll("#products input").forEach(input => {
-    total += (Number(input.value) || 0) * Number(input.dataset.price);
+  document.querySelectorAll("#products .card").forEach(card => {
+    const input = card.querySelector("input");
+    const qty = Number(input.value) || 0;
+    const price = Number(input.dataset.price);
+    const amount = qty * price;
+    card.querySelector(".itemTotal").innerText = amount;
+    total += amount;
   });
 
-  total -= Number(document.getElementById("oilMinus").value) || 0;
+  const oilMinus = Number(document.getElementById("oilMinus").value) || 0;
+  total -= oilMinus;
   if (total < 0) total = 0;
 
   document.getElementById("grandTotal").innerText = total;
@@ -186,18 +192,27 @@ function calculate() {
 
 document.addEventListener("input", calculate);
 
+// SAVE WITH AMOUNT
 document.getElementById("saveBtn").onclick = async function () {
-  const date = document.getElementById("entryDate").value;
 
+  const date = document.getElementById("entryDate").value;
   let items = [];
   let total = 0;
 
-  document.querySelectorAll("#products input").forEach((input, index) => {
+  document.querySelectorAll("#products .card").forEach((card, index) => {
+    const input = card.querySelector("input");
     const qty = Number(input.value) || 0;
+
     if (qty > 0) {
-      const price = Number(input.dataset.price);
-      items.push({ name: products[index].name, qty, price });
-      total += qty * price;
+      const price = products[index].price;
+      const amount = qty * price;
+      items.push({
+        name: products[index].name,
+        price,
+        qty,
+        amount
+      });
+      total += amount;
     }
   });
 
@@ -213,10 +228,12 @@ document.getElementById("saveBtn").onclick = async function () {
   alert("💾 Saved Successfully");
 };
 
+// LOAD EXACT STRUCTURE
 document.getElementById("loadBtn").onclick = async function () {
-  const date = document.getElementById("entryDate").value;
 
+  const date = document.getElementById("entryDate").value;
   const snap = await db.collection("milkEntries").doc(date).get();
+
   if (!snap.exists) {
     alert("No Data Found");
     return;
@@ -226,13 +243,15 @@ document.getElementById("loadBtn").onclick = async function () {
 
   document.querySelectorAll("#products input").forEach(i => i.value = 0);
 
-  data.items.forEach(item => {
-    products.forEach((p, index) => {
-      if (p.name === item.name) {
-        document.querySelectorAll("#products input")[index].value = item.qty;
-      }
+  if (data.items) {
+    data.items.forEach(item => {
+      products.forEach((p, index) => {
+        if (p.name === item.name) {
+          document.querySelectorAll("#products input")[index].value = item.qty;
+        }
+      });
     });
-  });
+  }
 
   document.getElementById("oilMinus").value = data.oilMinus || 0;
   calculate();
