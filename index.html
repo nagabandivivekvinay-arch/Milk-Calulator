@@ -89,14 +89,6 @@ font-weight:bold;
 margin-top:25px;
 }
 
-#paymentStatus{
-font-size:30px;
-font-weight:bold;
-color:#2e7d32;
-text-align:center;
-margin-top:20px;
-}
-
 #mainContent{display:none;}
 
 #loginBox{
@@ -147,13 +139,19 @@ text-align:center;
 💰 Total Amount: ₹<span id="grandTotal">0</span>
 </div>
 
-<button onclick="makePayment()">💳 Make Payment</button>
+<div class="card" style="text-align:center">
 
-<button onclick="markPaid()" style="background:#2e7d32;">
-✔ Payment Done
+<button onclick="makePayment()" style="background:#ff1744;font-size:20px;padding:16px;">
+💳 MAKE PAYMENT
 </button>
 
-<div id="paymentStatus"></div>
+<button onclick="markPaid()" style="background:#2e7d32;font-size:18px;">
+✔ PAYMENT DONE
+</button>
+
+<div id="paymentStatus" style="font-size:30px;font-weight:bold;color:#2e7d32;margin-top:15px;"></div>
+
+</div>
 
 </div>
 
@@ -198,6 +196,7 @@ const products=[
 const container=document.getElementById("products");
 
 products.forEach(product=>{
+
 const card=document.createElement("div");
 
 card.className="card";
@@ -217,6 +216,7 @@ Quantity:
 `;
 
 container.appendChild(card);
+
 });
 
 function calculate(){
@@ -344,13 +344,10 @@ function makePayment(){
 let amount=document.getElementById("grandTotal").innerText;
 
 let upiID="mulkasampath@okaxis";
-
 let name="Mulka Sampath";
-
 let note="Milk Bill Payment";
 
-let upiLink=
-`upi://pay?pa=${upiID}&pn=${name}&am=${amount}&cu=INR&tn=${note}`;
+let upiLink=`upi://pay?pa=${upiID}&pn=${name}&am=${amount}&cu=INR&tn=${note}`;
 
 window.location.href=upiLink;
 
