@@ -97,6 +97,28 @@ margin:120px auto;
 text-align:center;
 }
 
+.popup{
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.6);
+justify-content:center;
+align-items:center;
+z-index:9999;
+}
+
+.popup-box{
+background:white;
+padding:25px;
+border-radius:15px;
+text-align:center;
+width:90%;
+max-width:350px;
+}
+
 </style>
 </head>
 
@@ -141,7 +163,7 @@ text-align:center;
 
 <div class="card" style="text-align:center">
 
-<button onclick="makePayment()" style="background:#ff1744;font-size:20px;padding:16px;">
+<button onclick="makePayment()" style="background:#ff1744;font-size:20px;">
 💳 MAKE PAYMENT
 </button>
 
@@ -149,18 +171,39 @@ text-align:center;
 ✔ PAYMENT DONE
 </button>
 
-<div id="paymentStatus" style="font-size:30px;font-weight:bold;color:#2e7d32;margin-top:15px;"></div>
+</div>
+
+</div>
+
+
+<div id="paymentPopup" class="popup">
+
+<div class="popup-box">
+
+<h2 style="color:#2e7d32;">✅ Payment Completed</h2>
+
+<p>Send milk bill to supplier WhatsApp?</p>
+
+<button onclick="sendBillWhatsApp()" style="background:#25D366;">
+📤 Send Bill to WhatsApp
+</button>
+
+<button onclick="closePopup()" style="background:#777;">
+Close
+</button>
 
 </div>
 
 </div>
+
 
 <script>
 
 const ADMIN_PASSWORD="1234";
 
 function checkPassword(){
-const entered=document.getElementById("password").value;
+
+let entered=document.getElementById("password").value;
 
 if(entered===ADMIN_PASSWORD){
 document.getElementById("loginBox").style.display="none";
@@ -168,6 +211,7 @@ document.getElementById("mainContent").style.display="block";
 }else{
 alert("Wrong Password");
 }
+
 }
 
 const firebaseConfig={
@@ -177,6 +221,7 @@ projectId:"ramu-kiranam-milk"
 };
 
 firebase.initializeApp(firebaseConfig);
+
 const db=firebase.firestore();
 
 document.getElementById("entryDate").value=
@@ -219,19 +264,20 @@ container.appendChild(card);
 
 });
 
+
 function calculate(){
 
 let total=0;
 
 document.querySelectorAll("#products .card").forEach(card=>{
 
-const input=card.querySelector("input");
+let input=card.querySelector("input");
 
-const qty=Number(input.value)||0;
+let qty=Number(input.value)||0;
 
-const price=Number(input.dataset.price);
+let price=Number(input.dataset.price);
 
-const amount=qty*price;
+let amount=qty*price;
 
 card.querySelector(".itemTotal").innerText=amount;
 
@@ -239,8 +285,8 @@ total+=amount;
 
 });
 
-const oilMinus=Number(document.getElementById("oilMinus").value)||0;
-const riceMinus=Number(document.getElementById("riceMinus").value)||0;
+let oilMinus=Number(document.getElementById("oilMinus").value)||0;
+let riceMinus=Number(document.getElementById("riceMinus").value)||0;
 
 total=total-oilMinus-riceMinus;
 
@@ -252,99 +298,15 @@ document.getElementById("grandTotal").innerText=total;
 
 document.addEventListener("input",calculate);
 
-document.getElementById("saveBtn").onclick=async function(){
-
-const date=document.getElementById("entryDate").value;
-
-let items=[];
-let total=0;
-
-document.querySelectorAll("#products .card").forEach((card,index)=>{
-
-const input=card.querySelector("input");
-
-const qty=Number(input.value)||0;
-
-if(qty>0){
-
-const price=products[index].price;
-
-const amount=qty*price;
-
-items.push({
-name:products[index].name,
-price,
-qty,
-amount
-});
-
-total+=amount;
-
-}
-
-});
-
-const oilMinus=Number(document.getElementById("oilMinus").value)||0;
-const riceMinus=Number(document.getElementById("riceMinus").value)||0;
-
-await db.collection("milkEntries").doc(date).set({
-date,
-items,
-oilMinus,
-riceMinus,
-total:total-oilMinus-riceMinus
-});
-
-alert("Saved Successfully");
-
-};
-
-document.getElementById("loadBtn").onclick=async function(){
-
-const date=document.getElementById("entryDate").value;
-
-const snap=await db.collection("milkEntries").doc(date).get();
-
-if(!snap.exists){
-alert("No Data Found");
-return;
-}
-
-const data=snap.data();
-
-document.querySelectorAll("#products input").forEach(i=>i.value="");
-
-if(data.items){
-
-data.items.forEach(item=>{
-
-products.forEach((p,index)=>{
-
-if(p.name===item.name){
-
-document.querySelectorAll("#products input")[index].value=item.qty;
-
-}
-
-});
-
-});
-
-}
-
-document.getElementById("oilMinus").value=data.oilMinus||"";
-document.getElementById("riceMinus").value=data.riceMinus||"";
-
-calculate();
-
-};
 
 function makePayment(){
 
 let amount=document.getElementById("grandTotal").innerText;
 
 let upiID="mulkasampath@okaxis";
+
 let name="Mulka Sampath";
+
 let note="Milk Bill Payment";
 
 let upiLink=`upi://pay?pa=${upiID}&pn=${name}&am=${amount}&cu=INR&tn=${note}`;
@@ -353,10 +315,65 @@ window.location.href=upiLink;
 
 }
 
+
 function markPaid(){
 
-document.getElementById("paymentStatus").innerHTML=
-"✅ PAYMENT COMPLETED";
+document.getElementById("paymentPopup").style.display="flex";
+
+}
+
+
+function closePopup(){
+
+document.getElementById("paymentPopup").style.display="none";
+
+}
+
+
+function sendBillWhatsApp(){
+
+let date=document.getElementById("entryDate").value;
+let oilMinus=document.getElementById("oilMinus").value||0;
+let riceMinus=document.getElementById("riceMinus").value||0;
+let totalAmount=document.getElementById("grandTotal").innerText;
+
+let items="";
+let totalPackets=0;
+
+document.querySelectorAll("#products .card").forEach(card=>{
+
+let name=card.querySelector("strong").innerText;
+let qty=card.querySelector("input").value;
+
+if(qty && qty>0){
+
+items+=name+" × "+qty+"\n";
+totalPackets+=Number(qty);
+
+}
+
+});
+
+let message=
+`Milk Bill Payment
+
+Date: ${date}
+
+${items}
+Total Milk Packets: ${totalPackets}
+
+Oil Minus: ₹${oilMinus}
+Rice Minus: ₹${riceMinus}
+
+Final Amount Paid: ₹${totalAmount}
+
+From: Ramu Kiranam Store`;
+
+let supplierNumber="919849352795";
+
+let whatsappURL=`https://wa.me/${supplierNumber}?text=${encodeURIComponent(message)}`;
+
+window.open(whatsappURL,"_blank");
 
 }
 
