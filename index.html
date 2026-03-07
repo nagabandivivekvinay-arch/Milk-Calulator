@@ -15,7 +15,6 @@ body {
   background: linear-gradient(135deg, #eef2f3, #dfe9f3);
   margin: 0;
   padding: 18px;
-  line-height: 1.6;
 }
 
 .header {
@@ -26,12 +25,6 @@ body {
 .header h1 {
   font-size: 32px;
   color: #1a237e;
-  margin-bottom: 6px;
-}
-
-.header div {
-  font-size: 18px;
-  color: #37474f;
 }
 
 .card {
@@ -76,10 +69,6 @@ button {
   cursor: pointer;
 }
 
-button:hover {
-  opacity: 0.9;
-}
-
 .amount-box {
   font-size: 18px;
   font-weight: bold;
@@ -116,22 +105,22 @@ button:hover {
 
 <!-- LOGIN -->
 <div id="loginBox" class="card">
-  <h2>🔐 Admin Access</h2>
-  <input type="password" id="password" placeholder="Enter Password"><br><br>
-  <button onclick="checkPassword()">Login</button>
+<h2>🔐 Admin Access</h2>
+<input type="password" id="password" placeholder="Enter Password"><br><br>
+<button onclick="checkPassword()">Login</button>
 </div>
 
 <!-- MAIN -->
 <div id="mainContent">
 
 <div class="header">
-  <h1>🛒 Ramu Kiranam 🥛</h1>
-  <div>📊 Daily Milk Purchase Calculator</div>
+<h1>🛒 Ramu Kiranam 🥛</h1>
+<div>📊 Daily Milk Purchase Calculator</div>
 </div>
 
 <div class="card">
-  📅 Date:
-  <input type="date" id="entryDate">
+📅 Date:
+<input type="date" id="entryDate">
 </div>
 
 <button id="saveBtn">💾 Save Today’s Entry</button>
@@ -140,12 +129,17 @@ button:hover {
 <div id="products"></div>
 
 <div class="card">
-  🛢️ Oil Tin Minus:
-  <input type="number" id="oilMinus" value="0">
+🛢️ Oil Tin Minus:
+<input type="number" id="oilMinus" placeholder="Enter amount">
+</div>
+
+<div class="card">
+🍚 Rice Amount Minus:
+<input type="number" id="riceMinus" placeholder="Enter amount">
 </div>
 
 <div class="grand-total">
-  💰 Total Amount: ₹<span id="grandTotal">0</span>
+💰 Total Amount: ₹<span id="grandTotal">0</span>
 </div>
 
 </div>
@@ -155,144 +149,172 @@ button:hover {
 // PASSWORD
 const ADMIN_PASSWORD = "1234";
 
-function checkPassword() {
-  const entered = document.getElementById("password").value;
-  if (entered === ADMIN_PASSWORD) {
-    document.getElementById("loginBox").style.display = "none";
-    document.getElementById("mainContent").style.display = "block";
-  } else {
-    alert("❌ Wrong Password");
-  }
+function checkPassword(){
+const entered=document.getElementById("password").value;
+if(entered===ADMIN_PASSWORD){
+document.getElementById("loginBox").style.display="none";
+document.getElementById("mainContent").style.display="block";
+}else{
+alert("❌ Wrong Password");
+}
 }
 
 // FIREBASE
-const firebaseConfig = {
-  apiKey: "AIzaSyDuT-uXEbATKcPd3Smk1oysNih_lplFCwo",
-  authDomain: "ramu-kiranam-milk.firebaseapp.com",
-  projectId: "ramu-kiranam-milk"
+const firebaseConfig={
+apiKey:"AIzaSyDuT-uXEbATKcPd3Smk1oysNih_lplFCwo",
+authDomain:"ramu-kiranam-milk.firebaseapp.com",
+projectId:"ramu-kiranam-milk"
 };
 
 firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+const db=firebase.firestore();
 
 document.getElementById("entryDate").value =
-  new Date().toISOString().split("T")[0];
+new Date().toISOString().split("T")[0];
 
-// OLD EXACT PRODUCT NAMES
-const products = [
-  { name: "🥛 Thirumala Gold 500ml", price: 37 },
-  { name: "🥛 Mulkanoor Gold 500ml", price: 35.5 },
-  { name: "🥛 Thirumala & Mulaknoor Plain 500ml", price: 27 },
-  { name: "🥛 Mulkanoor Gold 200ml", price: 13 },
-  { name: "🥛 Curd 1kg", price: 48 },
-  { name: "🥛 Sangam Curd 500gm", price: 28 },
-  { name: "🥛 Mukunda Curd 500gm", price: 24 },
-  { name: "🥛 Curd 175gm", price: 8 }
+// PRODUCTS
+const products=[
+{ name:"🥛 Thirumala Gold 500ml", price:37 },
+{ name:"🥛 Mulkanoor Gold 500ml", price:35.5 },
+{ name:"🥛 Thirumala & Mulaknoor Plain 500ml", price:27 },
+{ name:"🥛 Mulkanoor Gold 200ml", price:13 },
+{ name:"🥛 Curd 1kg", price:48 },
+{ name:"🥛 Sangam Curd 500gm", price:28 },
+{ name:"🥛 Mukunda Curd 500gm", price:24 },
+{ name:"🥛 Curd 175gm", price:8 }
 ];
 
-const container = document.getElementById("products");
+const container=document.getElementById("products");
 
-products.forEach(product => {
-  const card = document.createElement("div");
-  card.className = "card";
-  card.innerHTML = `
-    <strong>${product.name}</strong><br>
-    Price: ₹${product.price}
-    <div class="row">
-      Quantity:
-      <input type="number" min="0" value="0" data-price="${product.price}">
-      <div class="amount-box">₹ <span class="itemTotal">0</span></div>
-    </div>
-  `;
-  container.appendChild(card);
+products.forEach(product=>{
+const card=document.createElement("div");
+card.className="card";
+card.innerHTML=`
+<strong>${product.name}</strong><br>
+Price: ₹${product.price}
+<div class="row">
+Quantity:
+<input type="number" min="0" data-price="${product.price}" placeholder="Qty">
+<div class="amount-box">₹ <span class="itemTotal">0</span></div>
+</div>
+`;
+container.appendChild(card);
 });
 
-function calculate() {
-  let total = 0;
+// CALCULATE
+function calculate(){
 
-  document.querySelectorAll("#products .card").forEach(card => {
-    const input = card.querySelector("input");
-    const qty = Number(input.value) || 0;
-    const price = Number(input.dataset.price);
-    const amount = qty * price;
-    card.querySelector(".itemTotal").innerText = amount;
-    total += amount;
-  });
+let total=0;
 
-  const oilMinus = Number(document.getElementById("oilMinus").value) || 0;
-  total -= oilMinus;
-  if (total < 0) total = 0;
+document.querySelectorAll("#products .card").forEach(card=>{
+const input=card.querySelector("input");
+const qty=Number(input.value)||0;
+const price=Number(input.dataset.price);
+const amount=qty*price;
 
-  document.getElementById("grandTotal").innerText = total;
+card.querySelector(".itemTotal").innerText=amount;
+total+=amount;
+
+});
+
+const oilMinus=Number(document.getElementById("oilMinus").value)||0;
+const riceMinus=Number(document.getElementById("riceMinus").value)||0;
+
+total=total-oilMinus-riceMinus;
+
+if(total<0) total=0;
+
+document.getElementById("grandTotal").innerText=total;
+
 }
 
-document.addEventListener("input", calculate);
+document.addEventListener("input",calculate);
 
 // SAVE
-document.getElementById("saveBtn").onclick = async function () {
+document.getElementById("saveBtn").onclick=async function(){
 
-  const date = document.getElementById("entryDate").value;
-  let items = [];
-  let total = 0;
+const date=document.getElementById("entryDate").value;
 
-  document.querySelectorAll("#products .card").forEach((card, index) => {
-    const input = card.querySelector("input");
-    const qty = Number(input.value) || 0;
+let items=[];
+let total=0;
 
-    if (qty > 0) {
-      const price = products[index].price;
-      const amount = qty * price;
-      items.push({
-        name: products[index].name,
-        price,
-        qty,
-        amount
-      });
-      total += amount;
-    }
-  });
+document.querySelectorAll("#products .card").forEach((card,index)=>{
 
-  const oilMinus = Number(document.getElementById("oilMinus").value) || 0;
+const input=card.querySelector("input");
+const qty=Number(input.value)||0;
 
-  await db.collection("milkEntries").doc(date).set({
-    date,
-    items,
-    oilMinus,
-    total: total - oilMinus
-  });
+if(qty>0){
 
-  alert("💾 Saved Successfully");
+const price=products[index].price;
+const amount=qty*price;
+
+items.push({
+name:products[index].name,
+price,
+qty,
+amount
+});
+
+total+=amount;
+
+}
+
+});
+
+const oilMinus=Number(document.getElementById("oilMinus").value)||0;
+const riceMinus=Number(document.getElementById("riceMinus").value)||0;
+
+await db.collection("milkEntries").doc(date).set({
+date,
+items,
+oilMinus,
+riceMinus,
+total:total-oilMinus-riceMinus
+});
+
+alert("💾 Saved Successfully");
+
 };
 
 // LOAD
-document.getElementById("loadBtn").onclick = async function () {
+document.getElementById("loadBtn").onclick=async function(){
 
-  const date = document.getElementById("entryDate").value;
-  const snap = await db.collection("milkEntries").doc(date).get();
+const date=document.getElementById("entryDate").value;
 
-  if (!snap.exists) {
-    alert("No Data Found");
-    return;
-  }
+const snap=await db.collection("milkEntries").doc(date).get();
 
-  const data = snap.data();
+if(!snap.exists){
+alert("No Data Found");
+return;
+}
 
-  document.querySelectorAll("#products input").forEach(i => i.value = 0);
+const data=snap.data();
 
-  if (data.items) {
-    data.items.forEach(item => {
-      products.forEach((p, index) => {
-        if (p.name === item.name) {
-          document.querySelectorAll("#products input")[index].value = item.qty;
-        }
-      });
-    });
-  }
+document.querySelectorAll("#products input").forEach(i=>i.value="");
 
-  document.getElementById("oilMinus").value = data.oilMinus || 0;
-  calculate();
+if(data.items){
 
-  alert("📂 Loaded Successfully");
+data.items.forEach(item=>{
+
+products.forEach((p,index)=>{
+
+if(p.name===item.name){
+document.querySelectorAll("#products input")[index].value=item.qty;
+}
+
+});
+
+});
+
+}
+
+document.getElementById("oilMinus").value=data.oilMinus||"";
+document.getElementById("riceMinus").value=data.riceMinus||"";
+
+calculate();
+
+alert("📂 Loaded Successfully");
+
 };
 
 </script>
