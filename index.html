@@ -1,55 +1,109 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Ramu Kiranam Milk Billing</title>
+<title>🛒 Ramu Kiranam - Milk Store</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <style>
 
 body{
-font-family:Segoe UI;
-background:#eef2f3;
-padding:15px;
+font-family:"Poppins","Segoe UI",sans-serif;
+background:linear-gradient(135deg,#eef2f3,#dfe9f3);
+margin:0;
+padding:18px;
+}
+
+.header{
+text-align:center;
+margin-bottom:25px;
+}
+
+.header h1{
+font-size:32px;
+color:#1a237e;
+margin-bottom:5px;
+}
+
+.header div{
+font-size:18px;
+color:#37474f;
 }
 
 .card{
-background:white;
-padding:15px;
-border-radius:12px;
-margin-bottom:12px;
+background:#fff;
+border-radius:18px;
+padding:18px;
+margin-bottom:18px;
+box-shadow:0 8px 18px rgba(0,0,0,0.08);
 }
 
 .row{
 display:flex;
 justify-content:space-between;
 align-items:center;
-margin-top:8px;
+margin-top:12px;
+}
+
+input{
+padding:8px;
+font-size:15px;
+border-radius:8px;
+border:1px solid #ccc;
+}
+
+input[type="number"]{
+width:70px;
+text-align:center;
 }
 
 button{
 width:100%;
-padding:12px;
-margin-top:10px;
-font-size:16px;
-background:#1976d2;
-color:white;
+padding:14px;
+font-size:17px;
+margin-bottom:12px;
 border:none;
-border-radius:10px;
+border-radius:14px;
+background:linear-gradient(135deg,#1976d2,#0d47a1);
+color:#fff;
+font-weight:bold;
+cursor:pointer;
 }
 
-.total{
-font-size:22px;
+.amount-box{
+font-size:18px;
 font-weight:bold;
-background:#ff9800;
-color:white;
-padding:15px;
-border-radius:12px;
+color:#fff;
+background:linear-gradient(135deg,#43a047,#1b5e20);
+padding:6px 10px;
+border-radius:10px;
+min-width:80px;
 text-align:center;
 }
+
+.grand-total{
+background:linear-gradient(135deg,#ff6f00,#e65100);
+color:#fff;
+padding:22px;
+border-radius:18px;
+text-align:center;
+font-size:24px;
+font-weight:bold;
+margin-top:25px;
+}
+
+#loginBox{
+max-width:350px;
+margin:120px auto;
+text-align:center;
+}
+
+#mainContent{display:none;}
 
 .popup{
 display:none;
@@ -61,6 +115,7 @@ height:100%;
 background:rgba(0,0,0,0.6);
 justify-content:center;
 align-items:center;
+z-index:999;
 }
 
 .popupBox{
@@ -77,15 +132,28 @@ max-width:320px;
 
 <body>
 
-<h2>🛒 Ramu Kiranam Milk Billing</h2>
+<!-- LOGIN -->
+<div id="loginBox" class="card">
+<h2>🔐 Admin Access</h2>
+<input type="password" id="password" placeholder="Enter Password"><br><br>
+<button onclick="checkPassword()">Login</button>
+</div>
+
+<!-- MAIN CONTENT -->
+<div id="mainContent">
+
+<div class="header">
+<h1>🛒 Ramu Kiranam 🥛</h1>
+<div>Daily Milk Purchase Calculator</div>
+</div>
 
 <div class="card">
 Date:
 <input type="date" id="entryDate">
 </div>
 
-<button id="saveBtn">Save Entry</button>
-<button id="loadBtn">Load Saved Data</button>
+<button id="saveBtn">💾 Save Entry</button>
+<button id="loadBtn">📂 Load Saved Data</button>
 
 <div id="products"></div>
 
@@ -99,13 +167,19 @@ Rice Minus
 <input type="number" id="riceMinus" placeholder="Amount">
 </div>
 
-<div class="total">
+<div class="grand-total">
 Total ₹ <span id="grandTotal">0</span>
 </div>
 
-<button onclick="makePayment()">MAKE PAYMENT</button>
-<button onclick="markPaid()" style="background:#2e7d32">PAYMENT DONE</button>
+<button onclick="makePayment()">💳 MAKE PAYMENT</button>
 
+<button onclick="markPaid()" style="background:#2e7d32">
+✔ PAYMENT DONE
+</button>
+
+</div>
+
+<!-- POPUP -->
 <div id="paymentPopup" class="popup">
 
 <div class="popupBox">
@@ -122,6 +196,26 @@ Close
 
 <script>
 
+const ADMIN_PASSWORD="1234";
+
+function checkPassword(){
+
+let entered=document.getElementById("password").value;
+
+if(entered===ADMIN_PASSWORD){
+
+document.getElementById("loginBox").style.display="none";
+document.getElementById("mainContent").style.display="block";
+
+}
+else{
+
+alert("Wrong Password");
+
+}
+
+}
+
 const firebaseConfig={
 apiKey:"AIzaSyDuT-uXEbATKcPd3Smk1oysNih_lplFCwo",
 authDomain:"ramu-kiranam-milk.firebaseapp.com",
@@ -129,6 +223,7 @@ projectId:"ramu-kiranam-milk"
 };
 
 firebase.initializeApp(firebaseConfig);
+
 const db=firebase.firestore();
 
 document.getElementById("entryDate").value=
@@ -147,23 +242,23 @@ const products=[
 
 const container=document.getElementById("products");
 
-products.forEach(p=>{
+products.forEach(product=>{
 
-let card=document.createElement("div");
+const card=document.createElement("div");
 
 card.className="card";
 
-card.innerHTML=
-`
-<b>${p.name}</b><br>
+card.innerHTML=`
+<strong>${product.name}</strong><br>
+Price: ₹${product.price}
 
 <div class="row">
-
 Qty
-<input type="number" min="0" data-price="${p.price}" placeholder="">
+<input type="number" min="0" data-price="${product.price}" placeholder="">
 
+<div class="amount-box">
 ₹ <span class="itemTotal">0</span>
-
+</div>
 </div>
 `;
 
@@ -233,13 +328,11 @@ let oilMinus=Number(document.getElementById("oilMinus").value)||0;
 let riceMinus=Number(document.getElementById("riceMinus").value)||0;
 
 await db.collection("milkEntries").doc(date).set({
-
 date,
 items,
 oilMinus,
 riceMinus,
 total:total-oilMinus-riceMinus
-
 });
 
 alert("Saved");
@@ -255,6 +348,7 @@ let snap=await db.collection("milkEntries").doc(date).get();
 if(!snap.exists){
 
 alert("No Data Found");
+
 return;
 
 }
