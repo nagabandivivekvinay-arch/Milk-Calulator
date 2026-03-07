@@ -109,40 +109,17 @@ button:hover {
   margin: 120px auto;
   text-align: center;
 }
-
-/* popup */
-.popup{
-display:none;
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-background:rgba(0,0,0,0.6);
-justify-content:center;
-align-items:center;
-}
-
-.popupBox{
-background:white;
-padding:25px;
-border-radius:15px;
-text-align:center;
-}
-
 </style>
 </head>
 
 <body>
 
-<!-- LOGIN -->
 <div id="loginBox" class="card">
   <h2>🔐 Admin Access</h2>
   <input type="password" id="password" placeholder="Enter Password"><br><br>
   <button onclick="checkPassword()">Login</button>
 </div>
 
-<!-- MAIN -->
 <div id="mainContent">
 
 <div class="header">
@@ -151,8 +128,8 @@ text-align:center;
 </div>
 
 <div class="card">
-  📅 Date:
-  <input type="date" id="entryDate">
+📅 Date:
+<input type="date" id="entryDate">
 </div>
 
 <button id="saveBtn">💾 Save Today’s Entry</button>
@@ -161,35 +138,27 @@ text-align:center;
 <div id="products"></div>
 
 <div class="card">
-  🛢️ Oil Tin Minus:
-  <input type="number" id="oilMinus" value="0">
+🛢️ Oil Tin Minus:
+<input type="number" id="oilMinus" value="0">
 </div>
 
 <div class="card">
-  🍚 Rice Amount Minus:
-  <input type="number" id="riceMinus" value="0">
+🍚 Rice Amount Minus:
+<input type="number" id="riceMinus" value="0">
 </div>
 
 <div class="grand-total">
-  💰 Total Amount: ₹<span id="grandTotal">0</span>
+💰 Total Amount: ₹<span id="grandTotal">0</span>
 </div>
+
+<br>
 
 <button onclick="makePayment()">💳 Make Payment</button>
-<button onclick="markPaid()" style="background:#2e7d32">✔ Payment Done</button>
 
-</div>
-
-<!-- popup -->
-<div id="paymentPopup" class="popup">
-<div class="popupBox">
-<h2 style="color:#2e7d32">Payment Completed</h2>
-<button onclick="closePopup()" style="background:#777">Close</button>
-</div>
 </div>
 
 <script>
 
-// PASSWORD
 const ADMIN_PASSWORD = "1234";
 
 function checkPassword() {
@@ -202,7 +171,6 @@ function checkPassword() {
   }
 }
 
-// FIREBASE
 const firebaseConfig = {
   apiKey: "AIzaSyDuT-uXEbATKcPd3Smk1oysNih_lplFCwo",
   authDomain: "ramu-kiranam-milk.firebaseapp.com",
@@ -213,7 +181,7 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
 document.getElementById("entryDate").value =
-  new Date().toISOString().split("T")[0];
+new Date().toISOString().split("T")[0];
 
 const products = [
   { name: "🥛 Thirumala Gold 500ml", price: 37 },
@@ -268,7 +236,6 @@ function calculate() {
 
 document.addEventListener("input", calculate);
 
-// SAVE
 document.getElementById("saveBtn").onclick = async function () {
 
   const date = document.getElementById("entryDate").value;
@@ -306,7 +273,6 @@ document.getElementById("saveBtn").onclick = async function () {
   alert("💾 Saved Successfully");
 };
 
-// LOAD
 document.getElementById("loadBtn").onclick = async function () {
 
   const date = document.getElementById("entryDate").value;
@@ -348,18 +314,6 @@ let upi="mulkasampath@okaxis";
 let link=`upi://pay?pa=${upi}&pn=Mulka Sampath&am=${amount}&cu=INR`;
 
 window.location.href=link;
-
-}
-
-function markPaid(){
-
-document.getElementById("paymentPopup").style.display="flex";
-
-}
-
-function closePopup(){
-
-document.getElementById("paymentPopup").style.display="none";
 
 }
 
