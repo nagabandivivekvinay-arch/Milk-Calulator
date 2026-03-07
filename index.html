@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -112,10 +113,6 @@ Total ₹ <span id="grandTotal">0</span>
 
 <h2 style="color:#2e7d32">Payment Completed</h2>
 
-<button onclick="sendBillWhatsApp()" style="background:#25D366">
-Send Bill To WhatsApp
-</button>
-
 <button onclick="closePopup()" style="background:#777">
 Close
 </button>
@@ -133,7 +130,6 @@ projectId:"ramu-kiranam-milk"
 };
 
 firebase.initializeApp(firebaseConfig);
-
 const db=firebase.firestore();
 
 document.getElementById("entryDate").value=
@@ -142,12 +138,12 @@ new Date().toISOString().split("T")[0];
 const products=[
 {name:"Thirumala Gold 500ml",price:37},
 {name:"Mulkanoor Gold 500ml",price:35.5},
-{name:"Plain Milk 500ml",price:27},
-{name:"Mulkanoor 200ml",price:13},
+{name:"Thirumala & Mulkanoor Plain 500ml",price:27},
+{name:"Mulkanoor Gold 200ml",price:13},
 {name:"Curd 1kg",price:48},
-{name:"Sangam Curd 500g",price:28},
-{name:"Mukunda Curd 500g",price:24},
-{name:"Curd 175g",price:8}
+{name:"Sangam Curd 500gm",price:28},
+{name:"Mukunda Curd 500gm",price:24},
+{name:"Curd 175gm",price:8}
 ];
 
 const container=document.getElementById("products");
@@ -165,7 +161,7 @@ card.innerHTML=
 <div class="row">
 
 Qty
-<input type="number" min="0" data-price="${p.price}" placeholder="0">
+<input type="number" min="0" data-price="${p.price}" placeholder="">
 
 ₹ <span class="itemTotal">0</span>
 
@@ -209,8 +205,6 @@ document.getElementById("grandTotal").innerText=total;
 
 document.addEventListener("input",calculate);
 
-
-
 document.getElementById("saveBtn").onclick=async function(){
 
 let date=document.getElementById("entryDate").value;
@@ -253,8 +247,6 @@ alert("Saved");
 
 };
 
-
-
 document.getElementById("loadBtn").onclick=async function(){
 
 let date=document.getElementById("entryDate").value;
@@ -264,7 +256,6 @@ let snap=await db.collection("milkEntries").doc(date).get();
 if(!snap.exists){
 
 alert("No Data Found");
-
 return;
 
 }
@@ -294,8 +285,6 @@ calculate();
 
 };
 
-
-
 function makePayment(){
 
 let amount=document.getElementById("grandTotal").innerText;
@@ -308,15 +297,11 @@ window.location.href=link;
 
 }
 
-
-
 function markPaid(){
 
 document.getElementById("paymentPopup").style.display="flex";
 
 }
-
-
 
 function closePopup(){
 
@@ -324,60 +309,8 @@ document.getElementById("paymentPopup").style.display="none";
 
 }
 
-
-
-function sendBillWhatsApp(){
-
-let date=document.getElementById("entryDate").value;
-
-let oil=document.getElementById("oilMinus").value||0;
-let rice=document.getElementById("riceMinus").value||0;
-
-let total=document.getElementById("grandTotal").innerText;
-
-let items="";
-let packets=0;
-
-document.querySelectorAll("#products .card").forEach(card=>{
-
-let name=card.querySelector("b").innerText;
-let qty=card.querySelector("input").value;
-
-if(qty>0){
-
-items+=name+" x "+qty+"\n";
-
-packets+=Number(qty);
-
-}
-
-});
-
-let msg=
-`Milk Bill Payment
-
-Date: ${date}
-
-${items}
-
-Total Packets: ${packets}
-
-Oil Minus ₹${oil}
-Rice Minus ₹${rice}
-
-Amount Paid ₹${total}
-
-Ramu Kiranam`;
-
-let number="919849352795";
-
-let url=`https://wa.me/${number}?text=${encodeURIComponent(msg)}`;
-
-window.open(url,"_blank");
-
-}
-
 </script>
 
 </body>
 </html>
+```
