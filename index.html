@@ -5,7 +5,6 @@
 <title>🛒 Ramu Kiranam - Milk Store</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
@@ -115,16 +114,16 @@ button:hover {
 <body>
 
 <div id="loginBox" class="card">
-  <h2>🔐 Admin Access</h2>
-  <input type="password" id="password" placeholder="Enter Password"><br><br>
-  <button onclick="checkPassword()">Login</button>
+<h2>🔐 Admin Access</h2>
+<input type="password" id="password" placeholder="Enter Password"><br><br>
+<button onclick="checkPassword()">Login</button>
 </div>
 
 <div id="mainContent">
 
 <div class="header">
-  <h1>🛒 Ramu Kiranam 🥛</h1>
-  <div>📊 Daily Milk Purchase Calculator</div>
+<h1>🛒 Ramu Kiranam 🥛</h1>
+<div>📊 Daily Milk Purchase Calculator</div>
 </div>
 
 <div class="card">
@@ -151,7 +150,7 @@ button:hover {
 💰 Total Amount: ₹<span id="grandTotal">0</span>
 </div>
 
-<br>
+<br><br>
 
 <button onclick="makePayment()">💳 Make Payment</button>
 
@@ -162,19 +161,19 @@ button:hover {
 const ADMIN_PASSWORD = "1234";
 
 function checkPassword() {
-  const entered = document.getElementById("password").value;
-  if (entered === ADMIN_PASSWORD) {
-    document.getElementById("loginBox").style.display = "none";
-    document.getElementById("mainContent").style.display = "block";
-  } else {
-    alert("❌ Wrong Password");
-  }
+const entered = document.getElementById("password").value;
+if (entered === ADMIN_PASSWORD) {
+document.getElementById("loginBox").style.display = "none";
+document.getElementById("mainContent").style.display = "block";
+} else {
+alert("❌ Wrong Password");
+}
 }
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDuT-uXEbATKcPd3Smk1oysNih_lplFCwo",
-  authDomain: "ramu-kiranam-milk.firebaseapp.com",
-  projectId: "ramu-kiranam-milk"
+apiKey: "AIzaSyDuT-uXEbATKcPd3Smk1oysNih_lplFCwo",
+authDomain: "ramu-kiranam-milk.firebaseapp.com",
+projectId: "ramu-kiranam-milk"
 };
 
 firebase.initializeApp(firebaseConfig);
@@ -184,136 +183,160 @@ document.getElementById("entryDate").value =
 new Date().toISOString().split("T")[0];
 
 const products = [
-  { name: "🥛 Thirumala Gold 500ml", price: 37 },
-  { name: "🥛 Mulkanoor Gold 500ml", price: 35.5 },
-  { name: "🥛 Thirumala & Mulaknoor Plain 500ml", price: 27 },
-  { name: "🥛 Mulkanoor Gold 200ml", price: 13 },
-  { name: "🥛 Curd 1kg", price: 48 },
-  { name: "🥛 Sangam Curd 500gm", price: 28 },
-  { name: "🥛 Mukunda Curd 500gm", price: 24 },
-  { name: "🥛 Curd 175gm", price: 8 }
+{ name: "🥛 Thirumala Gold 500ml", price: 37 },
+{ name: "🥛 Mulkanoor Gold 500ml", price: 35.5 },
+{ name: "🥛 Thirumala & Mulaknoor Plain 500ml", price: 27 },
+{ name: "🥛 Mulkanoor Gold 200ml", price: 13 },
+{ name: "🥛 Curd 1kg", price: 48 },
+{ name: "🥛 Sangam Curd 500gm", price: 28 },
+{ name: "🥛 Mukunda Curd 500gm", price: 24 },
+{ name: "🥛 Curd 175gm", price: 8 }
 ];
 
 const container = document.getElementById("products");
 
 products.forEach(product => {
-  const card = document.createElement("div");
-  card.className = "card";
-  card.innerHTML = `
-    <strong>${product.name}</strong><br>
-    Price: ₹${product.price}
-    <div class="row">
-      Quantity:
-      <input type="number" min="0" value="0" data-price="${product.price}">
-      <div class="amount-box">₹ <span class="itemTotal">0</span></div>
-    </div>
-  `;
-  container.appendChild(card);
+const card = document.createElement("div");
+card.className = "card";
+card.innerHTML = `
+<strong>${product.name}</strong><br>
+Price: ₹${product.price}
+<div class="row">
+Quantity:
+<input type="number" min="0" value="0" data-price="${product.price}">
+<div class="amount-box">₹ <span class="itemTotal">0</span></div>
+</div>
+`;
+container.appendChild(card);
 });
 
 function calculate() {
-  let total = 0;
 
-  document.querySelectorAll("#products .card").forEach(card => {
-    const input = card.querySelector("input");
-    const qty = Number(input.value) || 0;
-    const price = Number(input.dataset.price);
-    const amount = qty * price;
-    card.querySelector(".itemTotal").innerText = amount;
-    total += amount;
-  });
+let total = 0;
 
-  const oilMinus = Number(document.getElementById("oilMinus").value) || 0;
-  const riceMinus = Number(document.getElementById("riceMinus").value) || 0;
+document.querySelectorAll("#products .card").forEach(card => {
 
-  total -= oilMinus;
-  total -= riceMinus;
+const input = card.querySelector("input");
+const qty = Number(input.value) || 0;
+const price = Number(input.dataset.price);
+const amount = qty * price;
 
-  if (total < 0) total = 0;
+card.querySelector(".itemTotal").innerText = amount;
 
-  document.getElementById("grandTotal").innerText = total;
+total += amount;
+
+});
+
+const oilMinus = Number(document.getElementById("oilMinus").value) || 0;
+const riceMinus = Number(document.getElementById("riceMinus").value) || 0;
+
+total -= oilMinus;
+total -= riceMinus;
+
+if (total < 0) total = 0;
+
+document.getElementById("grandTotal").innerText = total;
+
 }
 
 document.addEventListener("input", calculate);
 
 document.getElementById("saveBtn").onclick = async function () {
 
-  const date = document.getElementById("entryDate").value;
-  let items = [];
-  let total = 0;
+const date = document.getElementById("entryDate").value;
 
-  document.querySelectorAll("#products .card").forEach((card, index) => {
-    const input = card.querySelector("input");
-    const qty = Number(input.value) || 0;
+let items = [];
+let total = 0;
 
-    if (qty > 0) {
-      const price = products[index].price;
-      const amount = qty * price;
-      items.push({
-        name: products[index].name,
-        price,
-        qty,
-        amount
-      });
-      total += amount;
-    }
-  });
+document.querySelectorAll("#products .card").forEach((card, index) => {
 
-  const oilMinus = Number(document.getElementById("oilMinus").value) || 0;
-  const riceMinus = Number(document.getElementById("riceMinus").value) || 0;
+const input = card.querySelector("input");
+const qty = Number(input.value) || 0;
 
-  await db.collection("milkEntries").doc(date).set({
-    date,
-    items,
-    oilMinus,
-    riceMinus,
-    total: total - oilMinus - riceMinus
-  });
+if (qty > 0) {
 
-  alert("💾 Saved Successfully");
+const price = products[index].price;
+const amount = qty * price;
+
+items.push({
+name: products[index].name,
+price,
+qty,
+amount
+});
+
+total += amount;
+
+}
+
+});
+
+const oilMinus = Number(document.getElementById("oilMinus").value) || 0;
+const riceMinus = Number(document.getElementById("riceMinus").value) || 0;
+
+await db.collection("milkEntries").doc(date).set({
+date,
+items,
+oilMinus,
+riceMinus,
+total: total - oilMinus - riceMinus
+});
+
+alert("💾 Saved Successfully");
+
 };
 
 document.getElementById("loadBtn").onclick = async function () {
 
-  const date = document.getElementById("entryDate").value;
-  const snap = await db.collection("milkEntries").doc(date).get();
+const date = document.getElementById("entryDate").value;
 
-  if (!snap.exists) {
-    alert("No Data Found");
-    return;
-  }
+const snap = await db.collection("milkEntries").doc(date).get();
 
-  const data = snap.data();
+if (!snap.exists) {
+alert("No Data Found");
+return;
+}
 
-  document.querySelectorAll("#products input").forEach(i => i.value = 0);
+const data = snap.data();
 
-  if (data.items) {
-    data.items.forEach(item => {
-      products.forEach((p, index) => {
-        if (p.name === item.name) {
-          document.querySelectorAll("#products input")[index].value = item.qty;
-        }
-      });
-    });
-  }
+document.querySelectorAll("#products input").forEach(i => i.value = 0);
 
-  document.getElementById("oilMinus").value = data.oilMinus || 0;
-  document.getElementById("riceMinus").value = data.riceMinus || 0;
+if (data.items) {
 
-  calculate();
+data.items.forEach(item => {
 
-  alert("📂 Loaded Successfully");
+products.forEach((p, index) => {
+
+if (p.name === item.name) {
+
+document.querySelectorAll("#products input")[index].value = item.qty;
+
+}
+
+});
+
+});
+
+}
+
+document.getElementById("oilMinus").value = data.oilMinus || 0;
+document.getElementById("riceMinus").value = data.riceMinus || 0;
+
+calculate();
+
+alert("📂 Loaded Successfully");
+
 };
 
 function makePayment(){
 
-let amount=document.getElementById("grandTotal").innerText;
+let amount = document.getElementById("grandTotal").innerText;
 
-let upi="mulkasampath@okaxis";
+let upi = "mulkasampath@okaxis";
 
-let link=`upi://pay?pa=${upi}&pn=Mulka Sampath&am=${amount}&cu=INR`;
+let link = `upi://pay?pa=${upi}&pn=Mulka Sampath&am=${amount}&cu=INR`;
 
-window.location.href=link;
+window.location.href = link;
 
 }
 
