@@ -5,112 +5,117 @@
 <title>🛒 Ramu Kiranam - Milk Store</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <style>
-body {
-  font-family: "Poppins", "Segoe UI", sans-serif;
-  background: linear-gradient(135deg, #eef2f3, #dfe9f3);
-  margin: 0;
-  padding: 18px;
+
+body{
+font-family:"Poppins","Segoe UI",sans-serif;
+background:linear-gradient(135deg,#eef2f3,#dfe9f3);
+margin:0;
+padding:18px;
 }
 
-.header {
-  text-align: center;
-  margin-bottom: 25px;
+.header{
+text-align:center;
+margin-bottom:25px;
 }
 
-.header h1 {
-  font-size: 32px;
-  color: #1a237e;
+.header h1{
+font-size:32px;
+color:#1a237e;
 }
 
-.card {
-  background: #ffffff;
-  border-radius: 18px;
-  padding: 18px;
-  margin-bottom: 18px;
-  box-shadow: 0 8px 18px rgba(0,0,0,0.08);
+.card{
+background:#fff;
+border-radius:18px;
+padding:18px;
+margin-bottom:18px;
+box-shadow:0 8px 18px rgba(0,0,0,0.08);
 }
 
-.row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 12px;
+.row{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-top:12px;
 }
 
-input[type="number"],
-input[type="date"],
-input[type="password"] {
-  padding: 8px;
-  font-size: 15px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
+input{
+padding:8px;
+font-size:15px;
+border-radius:8px;
+border:1px solid #ccc;
 }
 
-input[type="number"] {
-  width: 70px;
-  text-align: center;
+input[type="number"]{
+width:70px;
+text-align:center;
 }
 
-button {
-  width: 100%;
-  padding: 14px;
-  font-size: 17px;
-  margin-bottom: 12px;
-  border: none;
-  border-radius: 14px;
-  background: linear-gradient(135deg, #1976d2, #0d47a1);
-  color: #fff;
-  font-weight: bold;
-  cursor: pointer;
+button{
+width:100%;
+padding:14px;
+font-size:17px;
+margin-bottom:12px;
+border:none;
+border-radius:14px;
+background:linear-gradient(135deg,#1976d2,#0d47a1);
+color:#fff;
+font-weight:bold;
+cursor:pointer;
 }
 
-.amount-box {
-  font-size: 18px;
-  font-weight: bold;
-  color: #ffffff;
-  background: linear-gradient(135deg, #43a047, #1b5e20);
-  padding: 6px 10px;
-  border-radius: 10px;
-  min-width: 80px;
-  text-align: center;
+.amount-box{
+font-size:18px;
+font-weight:bold;
+color:#fff;
+background:linear-gradient(135deg,#43a047,#1b5e20);
+padding:6px 10px;
+border-radius:10px;
+min-width:80px;
+text-align:center;
 }
 
-.grand-total {
-  background: linear-gradient(135deg, #ff6f00, #e65100);
-  color: #fff;
-  padding: 22px;
-  border-radius: 18px;
-  text-align: center;
-  font-size: 24px;
-  font-weight: bold;
-  margin-top: 25px;
+.grand-total{
+background:linear-gradient(135deg,#ff6f00,#e65100);
+color:#fff;
+padding:22px;
+border-radius:18px;
+text-align:center;
+font-size:24px;
+font-weight:bold;
+margin-top:25px;
 }
 
-#mainContent { display:none; }
-
-#loginBox {
-  max-width: 350px;
-  margin: 120px auto;
-  text-align: center;
+#paymentStatus{
+font-size:30px;
+font-weight:bold;
+color:#2e7d32;
+text-align:center;
+margin-top:20px;
 }
+
+#mainContent{display:none;}
+
+#loginBox{
+max-width:350px;
+margin:120px auto;
+text-align:center;
+}
+
 </style>
 </head>
 
 <body>
 
-<!-- LOGIN -->
 <div id="loginBox" class="card">
 <h2>🔐 Admin Access</h2>
 <input type="password" id="password" placeholder="Enter Password"><br><br>
 <button onclick="checkPassword()">Login</button>
 </div>
 
-<!-- MAIN -->
 <div id="mainContent">
 
 <div class="header">
@@ -130,36 +135,43 @@ button {
 
 <div class="card">
 🛢️ Oil Tin Minus:
-<input type="number" id="oilMinus" placeholder="Enter amount">
+<input type="number" id="oilMinus" placeholder="Amount">
 </div>
 
 <div class="card">
 🍚 Rice Amount Minus:
-<input type="number" id="riceMinus" placeholder="Enter amount">
+<input type="number" id="riceMinus" placeholder="Amount">
 </div>
 
 <div class="grand-total">
 💰 Total Amount: ₹<span id="grandTotal">0</span>
 </div>
 
+<button onclick="makePayment()">💳 Make Payment</button>
+
+<button onclick="markPaid()" style="background:#2e7d32;">
+✔ Payment Done
+</button>
+
+<div id="paymentStatus"></div>
+
 </div>
 
 <script>
 
-// PASSWORD
-const ADMIN_PASSWORD = "1234";
+const ADMIN_PASSWORD="1234";
 
 function checkPassword(){
 const entered=document.getElementById("password").value;
+
 if(entered===ADMIN_PASSWORD){
 document.getElementById("loginBox").style.display="none";
 document.getElementById("mainContent").style.display="block";
 }else{
-alert("❌ Wrong Password");
+alert("Wrong Password");
 }
 }
 
-// FIREBASE
 const firebaseConfig={
 apiKey:"AIzaSyDuT-uXEbATKcPd3Smk1oysNih_lplFCwo",
 authDomain:"ramu-kiranam-milk.firebaseapp.com",
@@ -169,50 +181,60 @@ projectId:"ramu-kiranam-milk"
 firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 
-document.getElementById("entryDate").value =
+document.getElementById("entryDate").value=
 new Date().toISOString().split("T")[0];
 
-// PRODUCTS
 const products=[
-{ name:"🥛 Thirumala Gold 500ml", price:37 },
-{ name:"🥛 Mulkanoor Gold 500ml", price:35.5 },
-{ name:"🥛 Thirumala & Mulaknoor Plain 500ml", price:27 },
-{ name:"🥛 Mulkanoor Gold 200ml", price:13 },
-{ name:"🥛 Curd 1kg", price:48 },
-{ name:"🥛 Sangam Curd 500gm", price:28 },
-{ name:"🥛 Mukunda Curd 500gm", price:24 },
-{ name:"🥛 Curd 175gm", price:8 }
+{name:"🥛 Thirumala Gold 500ml",price:37},
+{name:"🥛 Mulkanoor Gold 500ml",price:35.5},
+{name:"🥛 Thirumala & Mulaknoor Plain 500ml",price:27},
+{name:"🥛 Mulkanoor Gold 200ml",price:13},
+{name:"🥛 Curd 1kg",price:48},
+{name:"🥛 Sangam Curd 500gm",price:28},
+{name:"🥛 Mukunda Curd 500gm",price:24},
+{name:"🥛 Curd 175gm",price:8}
 ];
 
 const container=document.getElementById("products");
 
 products.forEach(product=>{
 const card=document.createElement("div");
+
 card.className="card";
+
 card.innerHTML=`
 <strong>${product.name}</strong><br>
 Price: ₹${product.price}
+
 <div class="row">
 Quantity:
 <input type="number" min="0" data-price="${product.price}" placeholder="Qty">
-<div class="amount-box">₹ <span class="itemTotal">0</span></div>
+
+<div class="amount-box">
+₹ <span class="itemTotal">0</span>
+</div>
 </div>
 `;
+
 container.appendChild(card);
 });
 
-// CALCULATE
 function calculate(){
 
 let total=0;
 
 document.querySelectorAll("#products .card").forEach(card=>{
+
 const input=card.querySelector("input");
+
 const qty=Number(input.value)||0;
+
 const price=Number(input.dataset.price);
+
 const amount=qty*price;
 
 card.querySelector(".itemTotal").innerText=amount;
+
 total+=amount;
 
 });
@@ -230,7 +252,6 @@ document.getElementById("grandTotal").innerText=total;
 
 document.addEventListener("input",calculate);
 
-// SAVE
 document.getElementById("saveBtn").onclick=async function(){
 
 const date=document.getElementById("entryDate").value;
@@ -241,11 +262,13 @@ let total=0;
 document.querySelectorAll("#products .card").forEach((card,index)=>{
 
 const input=card.querySelector("input");
+
 const qty=Number(input.value)||0;
 
 if(qty>0){
 
 const price=products[index].price;
+
 const amount=qty*price;
 
 items.push({
@@ -272,11 +295,10 @@ riceMinus,
 total:total-oilMinus-riceMinus
 });
 
-alert("💾 Saved Successfully");
+alert("Saved Successfully");
 
 };
 
-// LOAD
 document.getElementById("loadBtn").onclick=async function(){
 
 const date=document.getElementById("entryDate").value;
@@ -299,7 +321,9 @@ data.items.forEach(item=>{
 products.forEach((p,index)=>{
 
 if(p.name===item.name){
+
 document.querySelectorAll("#products input")[index].value=item.qty;
+
 }
 
 });
@@ -313,9 +337,31 @@ document.getElementById("riceMinus").value=data.riceMinus||"";
 
 calculate();
 
-alert("📂 Loaded Successfully");
-
 };
+
+function makePayment(){
+
+let amount=document.getElementById("grandTotal").innerText;
+
+let upiID="mulkasampath@okaxis";
+
+let name="Mulka Sampath";
+
+let note="Milk Bill Payment";
+
+let upiLink=
+`upi://pay?pa=${upiID}&pn=${name}&am=${amount}&cu=INR&tn=${note}`;
+
+window.location.href=upiLink;
+
+}
+
+function markPaid(){
+
+document.getElementById("paymentStatus").innerHTML=
+"✅ PAYMENT COMPLETED";
+
+}
 
 </script>
 
