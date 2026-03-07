@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>🛒 Ramu Kiranam - Milk Store</title>
+<title>Ramu Kiranam Milk Billing</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -11,89 +11,43 @@
 <style>
 
 body{
-font-family:"Poppins","Segoe UI",sans-serif;
-background:linear-gradient(135deg,#eef2f3,#dfe9f3);
-margin:0;
-padding:18px;
-}
-
-.header{
-text-align:center;
-margin-bottom:25px;
-}
-
-.header h1{
-font-size:32px;
-color:#1a237e;
+font-family:Segoe UI;
+background:#eef2f3;
+padding:15px;
 }
 
 .card{
-background:#fff;
-border-radius:18px;
-padding:18px;
-margin-bottom:18px;
-box-shadow:0 8px 18px rgba(0,0,0,0.08);
+background:white;
+padding:15px;
+border-radius:12px;
+margin-bottom:12px;
 }
 
 .row{
 display:flex;
 justify-content:space-between;
 align-items:center;
-margin-top:12px;
-}
-
-input{
-padding:8px;
-font-size:15px;
-border-radius:8px;
-border:1px solid #ccc;
-}
-
-input[type="number"]{
-width:70px;
-text-align:center;
+margin-top:8px;
 }
 
 button{
 width:100%;
-padding:14px;
-font-size:17px;
-margin-bottom:12px;
+padding:12px;
+margin-top:10px;
+font-size:16px;
+background:#1976d2;
+color:white;
 border:none;
-border-radius:14px;
-background:linear-gradient(135deg,#1976d2,#0d47a1);
-color:#fff;
-font-weight:bold;
-cursor:pointer;
-}
-
-.amount-box{
-font-size:18px;
-font-weight:bold;
-color:#fff;
-background:linear-gradient(135deg,#43a047,#1b5e20);
-padding:6px 10px;
 border-radius:10px;
-min-width:80px;
-text-align:center;
 }
 
-.grand-total{
-background:linear-gradient(135deg,#ff6f00,#e65100);
-color:#fff;
-padding:22px;
-border-radius:18px;
-text-align:center;
-font-size:24px;
+.total{
+font-size:22px;
 font-weight:bold;
-margin-top:25px;
-}
-
-#mainContent{display:none;}
-
-#loginBox{
-max-width:350px;
-margin:120px auto;
+background:#ff9800;
+color:white;
+padding:15px;
+border-radius:12px;
 text-align:center;
 }
 
@@ -107,16 +61,15 @@ height:100%;
 background:rgba(0,0,0,0.6);
 justify-content:center;
 align-items:center;
-z-index:9999;
 }
 
-.popup-box{
+.popupBox{
 background:white;
 padding:25px;
 border-radius:15px;
 text-align:center;
-width:90%;
-max-width:350px;
+width:85%;
+max-width:320px;
 }
 
 </style>
@@ -124,71 +77,46 @@ max-width:350px;
 
 <body>
 
-<div id="loginBox" class="card">
-<h2>🔐 Admin Access</h2>
-<input type="password" id="password" placeholder="Enter Password"><br><br>
-<button onclick="checkPassword()">Login</button>
-</div>
-
-<div id="mainContent">
-
-<div class="header">
-<h1>🛒 Ramu Kiranam 🥛</h1>
-<div>📊 Daily Milk Purchase Calculator</div>
-</div>
+<h2>🛒 Ramu Kiranam Milk Billing</h2>
 
 <div class="card">
-📅 Date:
+Date:
 <input type="date" id="entryDate">
 </div>
 
-<button id="saveBtn">💾 Save Today’s Entry</button>
-<button id="loadBtn">📂 Load Selected Date</button>
+<button id="saveBtn">Save Entry</button>
+<button id="loadBtn">Load Saved Data</button>
 
 <div id="products"></div>
 
 <div class="card">
-🛢️ Oil Tin Minus:
+Oil Minus
 <input type="number" id="oilMinus" placeholder="Amount">
 </div>
 
 <div class="card">
-🍚 Rice Amount Minus:
+Rice Minus
 <input type="number" id="riceMinus" placeholder="Amount">
 </div>
 
-<div class="grand-total">
-💰 Total Amount: ₹<span id="grandTotal">0</span>
+<div class="total">
+Total ₹ <span id="grandTotal">0</span>
 </div>
 
-<div class="card" style="text-align:center">
-
-<button onclick="makePayment()" style="background:#ff1744;font-size:20px;">
-💳 MAKE PAYMENT
-</button>
-
-<button onclick="markPaid()" style="background:#2e7d32;font-size:18px;">
-✔ PAYMENT DONE
-</button>
-
-</div>
-
-</div>
-
+<button onclick="makePayment()">MAKE PAYMENT</button>
+<button onclick="markPaid()" style="background:#2e7d32">PAYMENT DONE</button>
 
 <div id="paymentPopup" class="popup">
 
-<div class="popup-box">
+<div class="popupBox">
 
-<h2 style="color:#2e7d32;">✅ Payment Completed</h2>
+<h2 style="color:#2e7d32">Payment Completed</h2>
 
-<p>Send milk bill to supplier WhatsApp?</p>
-
-<button onclick="sendBillWhatsApp()" style="background:#25D366;">
-📤 Send Bill to WhatsApp
+<button onclick="sendBillWhatsApp()" style="background:#25D366">
+Send Bill To WhatsApp
 </button>
 
-<button onclick="closePopup()" style="background:#777;">
+<button onclick="closePopup()" style="background:#777">
 Close
 </button>
 
@@ -196,23 +124,7 @@ Close
 
 </div>
 
-
 <script>
-
-const ADMIN_PASSWORD="1234";
-
-function checkPassword(){
-
-let entered=document.getElementById("password").value;
-
-if(entered===ADMIN_PASSWORD){
-document.getElementById("loginBox").style.display="none";
-document.getElementById("mainContent").style.display="block";
-}else{
-alert("Wrong Password");
-}
-
-}
 
 const firebaseConfig={
 apiKey:"AIzaSyDuT-uXEbATKcPd3Smk1oysNih_lplFCwo",
@@ -228,42 +140,41 @@ document.getElementById("entryDate").value=
 new Date().toISOString().split("T")[0];
 
 const products=[
-{name:"🥛 Thirumala Gold 500ml",price:37},
-{name:"🥛 Mulkanoor Gold 500ml",price:35.5},
-{name:"🥛 Thirumala & Mulaknoor Plain 500ml",price:27},
-{name:"🥛 Mulkanoor Gold 200ml",price:13},
-{name:"🥛 Curd 1kg",price:48},
-{name:"🥛 Sangam Curd 500gm",price:28},
-{name:"🥛 Mukunda Curd 500gm",price:24},
-{name:"🥛 Curd 175gm",price:8}
+{name:"Thirumala Gold 500ml",price:37},
+{name:"Mulkanoor Gold 500ml",price:35.5},
+{name:"Plain Milk 500ml",price:27},
+{name:"Mulkanoor 200ml",price:13},
+{name:"Curd 1kg",price:48},
+{name:"Sangam Curd 500g",price:28},
+{name:"Mukunda Curd 500g",price:24},
+{name:"Curd 175g",price:8}
 ];
 
 const container=document.getElementById("products");
 
-products.forEach(product=>{
+products.forEach(p=>{
 
-const card=document.createElement("div");
+let card=document.createElement("div");
 
 card.className="card";
 
-card.innerHTML=`
-<strong>${product.name}</strong><br>
-Price: ₹${product.price}
+card.innerHTML=
+`
+<b>${p.name}</b><br>
 
 <div class="row">
-Quantity:
-<input type="number" min="0" data-price="${product.price}" placeholder="Qty">
 
-<div class="amount-box">
+Qty
+<input type="number" min="0" data-price="${p.price}" placeholder="0">
+
 ₹ <span class="itemTotal">0</span>
-</div>
+
 </div>
 `;
 
 container.appendChild(card);
 
 });
-
 
 function calculate(){
 
@@ -275,7 +186,7 @@ let input=card.querySelector("input");
 
 let qty=Number(input.value)||0;
 
-let price=Number(input.dataset.price);
+let price=input.dataset.price;
 
 let amount=qty*price;
 
@@ -285,10 +196,10 @@ total+=amount;
 
 });
 
-let oilMinus=Number(document.getElementById("oilMinus").value)||0;
-let riceMinus=Number(document.getElementById("riceMinus").value)||0;
+let oil=Number(document.getElementById("oilMinus").value)||0;
+let rice=Number(document.getElementById("riceMinus").value)||0;
 
-total=total-oilMinus-riceMinus;
+total=total-oil-rice;
 
 if(total<0) total=0;
 
@@ -299,21 +210,104 @@ document.getElementById("grandTotal").innerText=total;
 document.addEventListener("input",calculate);
 
 
+
+document.getElementById("saveBtn").onclick=async function(){
+
+let date=document.getElementById("entryDate").value;
+
+let items=[];
+let total=0;
+
+document.querySelectorAll("#products .card").forEach((card,i)=>{
+
+let qty=Number(card.querySelector("input").value)||0;
+
+if(qty>0){
+
+let price=products[i].price;
+
+let amount=qty*price;
+
+items.push({name:products[i].name,qty,price});
+
+total+=amount;
+
+}
+
+});
+
+let oilMinus=Number(document.getElementById("oilMinus").value)||0;
+let riceMinus=Number(document.getElementById("riceMinus").value)||0;
+
+await db.collection("milkEntries").doc(date).set({
+
+date,
+items,
+oilMinus,
+riceMinus,
+total:total-oilMinus-riceMinus
+
+});
+
+alert("Saved");
+
+};
+
+
+
+document.getElementById("loadBtn").onclick=async function(){
+
+let date=document.getElementById("entryDate").value;
+
+let snap=await db.collection("milkEntries").doc(date).get();
+
+if(!snap.exists){
+
+alert("No Data Found");
+
+return;
+
+}
+
+let data=snap.data();
+
+document.querySelectorAll("#products input").forEach(i=>i.value="");
+
+data.items.forEach(item=>{
+
+products.forEach((p,index)=>{
+
+if(p.name===item.name){
+
+document.querySelectorAll("#products input")[index].value=item.qty;
+
+}
+
+});
+
+});
+
+document.getElementById("oilMinus").value=data.oilMinus||"";
+document.getElementById("riceMinus").value=data.riceMinus||"";
+
+calculate();
+
+};
+
+
+
 function makePayment(){
 
 let amount=document.getElementById("grandTotal").innerText;
 
-let upiID="mulkasampath@okaxis";
+let upi="mulkasampath@okaxis";
 
-let name="Mulka Sampath";
+let link=`upi://pay?pa=${upi}&pn=Mulka Sampath&am=${amount}&cu=INR`;
 
-let note="Milk Bill Payment";
-
-let upiLink=`upi://pay?pa=${upiID}&pn=${name}&am=${amount}&cu=INR&tn=${note}`;
-
-window.location.href=upiLink;
+window.location.href=link;
 
 }
+
 
 
 function markPaid(){
@@ -323,6 +317,7 @@ document.getElementById("paymentPopup").style.display="flex";
 }
 
 
+
 function closePopup(){
 
 document.getElementById("paymentPopup").style.display="none";
@@ -330,50 +325,55 @@ document.getElementById("paymentPopup").style.display="none";
 }
 
 
+
 function sendBillWhatsApp(){
 
 let date=document.getElementById("entryDate").value;
-let oilMinus=document.getElementById("oilMinus").value||0;
-let riceMinus=document.getElementById("riceMinus").value||0;
-let totalAmount=document.getElementById("grandTotal").innerText;
+
+let oil=document.getElementById("oilMinus").value||0;
+let rice=document.getElementById("riceMinus").value||0;
+
+let total=document.getElementById("grandTotal").innerText;
 
 let items="";
-let totalPackets=0;
+let packets=0;
 
 document.querySelectorAll("#products .card").forEach(card=>{
 
-let name=card.querySelector("strong").innerText;
+let name=card.querySelector("b").innerText;
 let qty=card.querySelector("input").value;
 
-if(qty && qty>0){
+if(qty>0){
 
-items+=name+" × "+qty+"\n";
-totalPackets+=Number(qty);
+items+=name+" x "+qty+"\n";
+
+packets+=Number(qty);
 
 }
 
 });
 
-let message=
+let msg=
 `Milk Bill Payment
 
 Date: ${date}
 
 ${items}
-Total Milk Packets: ${totalPackets}
 
-Oil Minus: ₹${oilMinus}
-Rice Minus: ₹${riceMinus}
+Total Packets: ${packets}
 
-Final Amount Paid: ₹${totalAmount}
+Oil Minus ₹${oil}
+Rice Minus ₹${rice}
 
-From: Ramu Kiranam Store`;
+Amount Paid ₹${total}
 
-let supplierNumber="919849352795";
+Ramu Kiranam`;
 
-let whatsappURL=`https://wa.me/${supplierNumber}?text=${encodeURIComponent(message)}`;
+let number="919849352795";
 
-window.open(whatsappURL,"_blank");
+let url=`https://wa.me/${number}?text=${encodeURIComponent(msg)}`;
+
+window.open(url,"_blank");
 
 }
 
