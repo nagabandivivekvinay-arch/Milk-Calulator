@@ -138,12 +138,12 @@ button:hover {
 
 <div class="card">
 🛢️ Oil Tin Minus:
-<input type="number" id="oilMinus" value="0">
+<input type="number" id="oilMinus" placeholder="0">
 </div>
 
 <div class="card">
 🍚 Rice Amount Minus:
-<input type="number" id="riceMinus" value="0">
+<input type="number" id="riceMinus" placeholder="0">
 </div>
 
 <div class="grand-total">
@@ -203,7 +203,7 @@ card.innerHTML = `
 Price: ₹${product.price}
 <div class="row">
 Quantity:
-<input type="number" min="0" value="0" data-price="${product.price}">
+<input type="number" min="0" data-price="${product.price}">
 <div class="amount-box">₹ <span class="itemTotal">0</span></div>
 </div>
 `;
@@ -299,7 +299,7 @@ return;
 
 const data = snap.data();
 
-document.querySelectorAll("#products input").forEach(i => i.value = 0);
+document.querySelectorAll("#products input").forEach(i => i.value = "");
 
 if (data.items) {
 
@@ -319,8 +319,8 @@ document.querySelectorAll("#products input")[index].value = item.qty;
 
 }
 
-document.getElementById("oilMinus").value = data.oilMinus || 0;
-document.getElementById("riceMinus").value = data.riceMinus || 0;
+document.getElementById("oilMinus").value = data.oilMinus || "";
+document.getElementById("riceMinus").value = data.riceMinus || "";
 
 calculate();
 
