@@ -5,7 +5,6 @@
 <title>🛒 Ramu Kiranam - Milk Store</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
@@ -115,14 +114,12 @@ button:hover {
 
 <body>
 
-<!-- LOGIN -->
 <div id="loginBox" class="card">
 <h2>🔐 Admin Access</h2>
 <input type="password" id="password" placeholder="Enter Password"><br><br>
 <button onclick="checkPassword()">Login</button>
 </div>
 
-<!-- MAIN CONTENT -->
 <div id="mainContent">
 
 <div class="header">
@@ -150,6 +147,7 @@ button:hover {
 <input type="number" id="riceMinus" placeholder="0">
 </div>
 
+<!-- NOTE SECTION ADDED -->
 <div class="card">
 📝 Note:
 <input type="text" id="noteText" placeholder="Write note here">
@@ -167,7 +165,6 @@ button:hover {
 
 <script>
 
-// PASSWORD
 const ADMIN_PASSWORD = "1234";
 
 function checkPassword() {
@@ -180,7 +177,6 @@ function checkPassword() {
   }
 }
 
-// FIREBASE
 const firebaseConfig = {
   apiKey: "AIzaSyDuT-uXEbATKcPd3Smk1oysNih_lplFCwo",
   authDomain: "ramu-kiranam-milk.firebaseapp.com",
@@ -190,11 +186,9 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// Set today's date
 document.getElementById("entryDate").value =
 new Date().toISOString().split("T")[0];
 
-// PRODUCT LIST
 const products = [
   { name: "🥛 Thirumala Gold 500ml", price: 37 },
   { name: "🥛 Mulkanoor Gold 500ml", price: 35.5 },
@@ -208,41 +202,31 @@ const products = [
 
 const container = document.getElementById("products");
 
-// CREATE PRODUCT CARDS
 products.forEach(product => {
   const card = document.createElement("div");
   card.className = "card";
-
   card.innerHTML = `
     <strong>${product.name}</strong><br>
     Price: ₹${product.price}
-
     <div class="row">
       Quantity:
       <input type="number" min="0" data-price="${product.price}">
       <div class="amount-box">₹ <span class="itemTotal">0</span></div>
     </div>
   `;
-
   container.appendChild(card);
 });
 
-// CALCULATE TOTAL
 function calculate() {
-
   let total = 0;
 
   document.querySelectorAll("#products .card").forEach(card => {
-
     const input = card.querySelector("input");
     const qty = Number(input.value) || 0;
     const price = Number(input.dataset.price);
     const amount = qty * price;
-
     card.querySelector(".itemTotal").innerText = amount;
-
     total += amount;
-
   });
 
   const oilMinus = Number(document.getElementById("oilMinus").value) || 0;
@@ -254,40 +238,31 @@ function calculate() {
   if (total < 0) total = 0;
 
   document.getElementById("grandTotal").innerText = total;
-
 }
 
 document.addEventListener("input", calculate);
 
-// SAVE DATA
 document.getElementById("saveBtn").onclick = async function () {
 
   const date = document.getElementById("entryDate").value;
-
   let items = [];
   let total = 0;
 
   document.querySelectorAll("#products .card").forEach((card, index) => {
-
     const input = card.querySelector("input");
     const qty = Number(input.value) || 0;
 
     if (qty > 0) {
-
       const price = products[index].price;
       const amount = qty * price;
-
       items.push({
         name: products[index].name,
         price,
         qty,
         amount
       });
-
       total += amount;
-
     }
-
   });
 
   const oilMinus = Number(document.getElementById("oilMinus").value) || 0;
@@ -304,14 +279,11 @@ document.getElementById("saveBtn").onclick = async function () {
   });
 
   alert("💾 Saved Successfully");
-
 };
 
-// LOAD DATA
 document.getElementById("loadBtn").onclick = async function () {
 
   const date = document.getElementById("entryDate").value;
-
   const snap = await db.collection("milkEntries").doc(date).get();
 
   if (!snap.exists) {
@@ -324,21 +296,13 @@ document.getElementById("loadBtn").onclick = async function () {
   document.querySelectorAll("#products input").forEach(i => i.value = "");
 
   if (data.items) {
-
     data.items.forEach(item => {
-
       products.forEach((p, index) => {
-
         if (p.name === item.name) {
-
           document.querySelectorAll("#products input")[index].value = item.qty;
-
         }
-
       });
-
     });
-
   }
 
   document.getElementById("oilMinus").value = data.oilMinus || "";
@@ -348,19 +312,16 @@ document.getElementById("loadBtn").onclick = async function () {
   calculate();
 
   alert("📂 Loaded Successfully");
-
 };
 
-// MAKE PAYMENT
 function makePayment(){
 
-  let amount = document.getElementById("grandTotal").innerText;
+let amount=document.getElementById("grandTotal").innerText;
+let upi="mulkasampath@okaxis";
 
-  let upi = "mulkasampath@okaxis";
+let link=`upi://pay?pa=${upi}&pn=Mulka Sampath&am=${amount}&cu=INR`;
 
-  let link = `upi://pay?pa=${upi}&pn=Mulka Sampath&am=${amount}&cu=INR`;
-
-  window.location.href = link;
+window.location.href=link;
 
 }
 
