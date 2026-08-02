@@ -434,9 +434,11 @@ document.querySelectorAll(".verifiedCheck").forEach(i => i.checked = false);
     });
 
 }
+  {
   document.getElementById("oilMinus").value = data.oilMinus || "";
   document.getElementById("riceMinus").value = data.riceMinus || "";
   document.getElementById("noteText").value = data.noteText || "";
+  
   document.querySelectorAll(".verifiedCheck").forEach(c => {
     c.dispatchEvent(new Event("change"));
 });
