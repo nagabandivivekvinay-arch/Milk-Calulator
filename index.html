@@ -397,8 +397,8 @@ document.getElementById("loadBtn").onclick = async function () {
     alert("No Data Found");
     return;
   }
-
   const data = snap.data();
+  console.log("Firebase Items:", data.items);
 
   document.querySelectorAll(".orderedQty").forEach(i => i.value = "");
 document.querySelectorAll(".missingQty").forEach(i => i.value = 0);
@@ -409,10 +409,18 @@ document.querySelectorAll(".verifiedCheck").forEach(i => i.checked = false);
 
     data.items.forEach(item => {
 
+      console.log("Searching:", item.name);
+
+      products.forEach(p => {
+      console.log("Product List:", p.name);
+      });
+
         const index = products.findIndex(p =>
             p.name.replace(/\s+/g, " ").trim() ===
             item.name.replace(/\s+/g, " ").trim()
         );
+
+        console.log("Matched Index =", index);
 
         if (index === -1) return;
 
@@ -429,12 +437,13 @@ document.querySelectorAll(".verifiedCheck").forEach(i => i.checked = false);
   document.getElementById("oilMinus").value = data.oilMinus || "";
   document.getElementById("riceMinus").value = data.riceMinus || "";
   document.getElementById("noteText").value = data.noteText || "";
-  document.querySelectorAll(".verifiedCheck").forEach(c=>{
+  document.querySelectorAll(".verifiedCheck").forEach(c => {
     c.dispatchEvent(new Event("change"));
+});
 
-  calculate();
+calculate();
 
-  alert("📂 Loaded Successfully");
+alert("📂 Loaded Successfully");
 };
 
 function makePayment(){
