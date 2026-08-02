@@ -288,12 +288,23 @@ function calculate() {
     const ordered = Number(card.querySelector(".orderedQty").value)||0;
 
 const missing = Number(card.querySelector(".missingQty").value)||0;
+let delivered = Number(card.querySelector(".deliveredQty").value) || 0;
 
-const delivered = ordered-missing;
+const verified = card.querySelector(".verifiedCheck").checked;
 
-card.querySelector(".deliveredQty").value=delivered;
+// If Missing entered, auto-calculate Delivered
+if (missing > 0) {
+    delivered = ordered - missing;
+    card.querySelector(".deliveredQty").value = delivered;
+}
 
-const qty=delivered;
+// If Verified ticked and no missing, Delivered = Ordered
+if (verified && missing === 0) {
+    delivered = ordered;
+    card.querySelector(".deliveredQty").value = delivered;
+}
+
+const qty = verified ? delivered : 0;
     const price = Number(card.querySelector(".orderedQty").dataset.price);
     const amount = qty * price;
     card.querySelector(".itemTotal").innerText = amount;
@@ -325,12 +336,15 @@ const delivered=Number(card.querySelector(".deliveredQty").value)||0;
 
 if(e.target.checked){
 
-if(delivered!=ordered){
+    const missing = Number(card.querySelector(".missingQty").value) || 0;
 
-alert("Missing packets entered.");
+    if(missing === 0){
+        card.querySelector(".deliveredQty").value = ordered;
+    }else{
+        card.querySelector(".deliveredQty").value = ordered - missing;
+    }
 
-}
-
+    calculate();
 }
 
 });
