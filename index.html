@@ -407,17 +407,17 @@ document.querySelectorAll(".verifiedCheck").forEach(i => i.checked = false);
 
   if (data.items) {
     data.items.forEach(item => {
-      products.forEach((p, index) => {
-        if (p.name === item.name) {
-          const card = document.querySelectorAll("#products .card")[index];
+        products.forEach((p, index) => {
+            console.log("Product =", p.name);
+console.log("Firebase =", item.name);
 
-card.querySelector(".orderedQty").value = item.ordered || "";
+if (p.name.trim() === item.name.trim()) {
+                const card = document.querySelectorAll("#products .card")[index];
 
-card.querySelector(".missingQty").value = item.missing || 0;
-
-card.querySelector(".deliveredQty").value = item.delivered || "";
-
-card.querySelector(".verifiedCheck").checked = item.verified || false;
+                card.querySelector(".orderedQty").value = item.ordered || "";
+                card.querySelector(".missingQty").value = item.missing || 0;
+                card.querySelector(".deliveredQty").value = item.delivered || "";
+                card.querySelector(".verifiedCheck").checked = item.verified || false;
         }
       });
     });
