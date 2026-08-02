@@ -381,13 +381,16 @@ document.getElementById("loadBtn").onclick = async function () {
 
   const data = snap.data();
 
-  document.querySelectorAll("#products input").forEach(i => i.value = "");
+  document.querySelectorAll(".orderedQty").forEach(i => i.value = "");
+document.querySelectorAll(".missingQty").forEach(i => i.value = 0);
+document.querySelectorAll(".deliveredQty").forEach(i => i.value = "");
+document.querySelectorAll(".verifiedCheck").forEach(i => i.checked = false);
 
   if (data.items) {
     data.items.forEach(item => {
       products.forEach((p, index) => {
         if (p.name === item.name) {
-          document.querySelectorAll("#products input")[index].value = item.qty;
+          document.querySelectorAll(".orderedQty")[index].value = item.qty;
         }
       });
     });
@@ -412,10 +415,6 @@ let link=`upi://pay?pa=${upi}&pn=Mulka Sampath&am=${amount}&cu=INR`;
 window.location.href=link;
 
 }
-
-};
-
-
 </script>
 
 </body>
