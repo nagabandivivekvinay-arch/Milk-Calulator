@@ -172,25 +172,6 @@ button:hover {
 
 <button id="saveBtn">💾 Save Today’s Entry</button>
 <button id="loadBtn">📂 Load Selected Date</button>
-<button id="verifyBtn">🚚 Verify Today's Delivery</button>
-
-<div id="products"></div>
-
-  <!-- Delivery Verification -->
-<div id="verificationSection" style="display:none;">
-
-  <div class="header">
-    <h2>🚚 Morning Delivery Verification</h2>
-    <div>Compare Expected vs Received Packets</div>
-  </div>
-
-  <div id="verificationProducts"></div>
-
-  <button id="saveVerificationBtn">
-    ✅ Save Verification
-  </button>
-
-</div>
 
 <div class="card">
 🛢️ Oil Tin Minus:
@@ -262,14 +243,37 @@ products.forEach(product => {
   const card = document.createElement("div");
   card.className = "card";
   card.innerHTML = `
-    <strong>${product.name}</strong><br>
-    Price: ₹${product.price}
-    <div class="row">
-      Quantity:
-      <input type="number" min="0" data-price="${product.price}">
-      <div class="amount-box">₹ <span class="itemTotal">0</span></div>
-    </div>
-  `;
+<strong>${product.name}</strong><br>
+
+<div class="row">
+Price :
+<b>₹${product.price}</b>
+</div>
+
+<div class="row">
+🛒 Ordered :
+<input type="number" min="0" class="orderedQty" data-price="${product.price}">
+</div>
+
+<div class="row">
+❌ Missing :
+<input type="number" min="0" value="0" class="missingQty">
+</div>
+
+<div class="row">
+🚚 Delivered :
+<input type="number" class="deliveredQty" readonly>
+</div>
+
+<div class="row">
+☑ Verified
+<input type="checkbox" class="verifiedCheck">
+</div>
+
+<div class="amount-box">
+₹ <span class="itemTotal">0</span>
+</div>
+`;
   container.appendChild(card);
 });
 
@@ -277,9 +281,16 @@ function calculate() {
   let total = 0;
 
   document.querySelectorAll("#products .card").forEach(card => {
-    const input = card.querySelector("input");
-    const qty = Number(input.value) || 0;
-    const price = Number(input.dataset.price);
+    const ordered = Number(card.querySelector(".orderedQty").value)||0;
+
+const missing = Number(card.querySelector(".missingQty").value)||0;
+
+const delivered = ordered-missing;
+
+card.querySelector(".deliveredQty").value=delivered;
+
+const qty=delivered;
+    const price = Number(card.querySelector(".orderedQty").dataset.price);
     const amount = qty * price;
     card.querySelector(".itemTotal").innerText = amount;
     total += amount;
@@ -298,6 +309,28 @@ function calculate() {
 
 document.addEventListener("input", calculate);
 
+document.addEventListener("change",function(e){
+
+if(!e.target.classList.contains("verifiedCheck")) return;
+
+const card=e.target.closest(".card");
+
+const ordered=Number(card.querySelector(".orderedQty").value)||0;
+
+const delivered=Number(card.querySelector(".deliveredQty").value)||0;
+
+if(e.target.checked){
+
+if(delivered!=ordered){
+
+alert("Missing packets entered.");
+
+}
+
+}
+
+});
+
 document.getElementById("saveBtn").onclick = async function () {
 
   const date = document.getElementById("entryDate").value;
@@ -305,8 +338,7 @@ document.getElementById("saveBtn").onclick = async function () {
   let total = 0;
 
   document.querySelectorAll("#products .card").forEach((card, index) => {
-    const input = card.querySelector("input");
-    const qty = Number(input.value) || 0;
+    const qty = Number(card.querySelector(".deliveredQty").value) || 0;
 
     if (qty > 0) {
       const price = products[index].price;
@@ -380,55 +412,6 @@ let link=`upi://pay?pa=${upi}&pn=Mulka Sampath&am=${amount}&cu=INR`;
 window.location.href=link;
 
 }
-
-document.getElementById("verifyBtn").onclick = function () {
-
-    const container = document.getElementById("verificationProducts");
-    container.innerHTML = "";
-
-    document.getElementById("verificationSection").style.display = "block";
-
-    const productInputs = document.querySelectorAll("#products .card");
-
-    productInputs.forEach(card => {
-
-        const name = card.querySelector("strong").innerText;
-
-        const qty = Number(card.querySelector("input").value) || 0;
-
-        if(qty > 0){
-
-            const verifyCard = document.createElement("div");
-
-            verifyCard.className = "verify-card";
-
-            verifyCard.innerHTML = `
-                <strong>${name}</strong>
-
-                <div class="verify-row">
-                    <span>📦 Expected : <b>${qty}</b></span>
-                </div>
-
-                <div class="verify-row">
-                    <span>📥 Received :</span>
-
-                    <input
-                        type="number"
-                        min="0"
-                        class="receivedQty"
-                        data-expected="${qty}">
-                </div>
-
-                <div class="verify-status waiting">
-                    ⏳ Waiting
-                </div>
-            `;
-
-            container.appendChild(verifyCard);
-
-        }
-
-    });
 
 };
 
