@@ -288,21 +288,9 @@ function calculate() {
     const ordered = Number(card.querySelector(".orderedQty").value)||0;
 
 const missing = Number(card.querySelector(".missingQty").value)||0;
-let delivered = Number(card.querySelector(".deliveredQty").value) || 0;
+   const verified = card.querySelector(".verifiedCheck").checked;
 
-const verified = card.querySelector(".verifiedCheck").checked;
-
-// If Missing entered, auto-calculate Delivered
-if (missing > 0) {
-    delivered = ordered - missing;
-    card.querySelector(".deliveredQty").value = delivered;
-}
-
-// If Verified ticked and no missing, Delivered = Ordered
-if (verified && missing === 0) {
-    delivered = ordered;
-    card.querySelector(".deliveredQty").value = delivered;
-}
+const delivered = Number(card.querySelector(".deliveredQty").value) || 0;
 
 const qty = verified ? delivered : 0;
     const price = Number(card.querySelector(".orderedQty").dataset.price);
@@ -324,31 +312,34 @@ const qty = verified ? delivered : 0;
 
 document.addEventListener("input", calculate);
 
-document.addEventListener("change",function(e){
+document.addEventListener("change", function(e) {
 
-if(!e.target.classList.contains("verifiedCheck")) return;
+    if (!e.target.classList.contains("verifiedCheck")) return;
 
-const card=e.target.closest(".card");
+    const card = e.target.closest(".card");
 
-const ordered=Number(card.querySelector(".orderedQty").value)||0;
-
-const delivered=Number(card.querySelector(".deliveredQty").value)||0;
-
-if(e.target.checked){
-
+    const ordered = Number(card.querySelector(".orderedQty").value) || 0;
     const missing = Number(card.querySelector(".missingQty").value) || 0;
 
-    if(missing === 0){
-        card.querySelector(".deliveredQty").value = ordered;
-    }else{
-        card.querySelector(".deliveredQty").value = ordered - missing;
+    if (e.target.checked) {
+
+        let delivered = ordered;
+
+        if (missing > 0) {
+            delivered = ordered - missing;
+        }
+
+        card.querySelector(".deliveredQty").value = delivered;
+
+    } else {
+
+        card.querySelector(".deliveredQty").value = "";
+
     }
 
     calculate();
-}
 
 });
-
 document.getElementById("saveBtn").onclick = async function () {
 
   const date = document.getElementById("entryDate").value;
