@@ -350,19 +350,29 @@ document.getElementById("saveBtn").onclick = async function () {
   let total = 0;
 
   document.querySelectorAll("#products .card").forEach((card, index) => {
-    const qty = Number(card.querySelector(".deliveredQty").value) || 0;
+    const ordered = Number(card.querySelector(".orderedQty").value) || 0;
+const missing = Number(card.querySelector(".missingQty").value) || 0;
+const delivered = Number(card.querySelector(".deliveredQty").value) || 0;
+const verified = card.querySelector(".verifiedCheck").checked;
 
-    if (qty > 0) {
-      const price = products[index].price;
-      const amount = qty * price;
-      items.push({
+if (ordered > 0) {
+
+    const price = products[index].price;
+
+    items.push({
         name: products[index].name,
         price,
-        qty,
-        amount
-      });
-      total += amount;
+        ordered,
+        missing,
+        delivered,
+        verified
+    });
+
+    if (verified) {
+        total += delivered * price;
     }
+
+}
   });
 
   const oilMinus = Number(document.getElementById("oilMinus").value) || 0;
@@ -402,7 +412,15 @@ document.querySelectorAll(".verifiedCheck").forEach(i => i.checked = false);
     data.items.forEach(item => {
       products.forEach((p, index) => {
         if (p.name === item.name) {
-          document.querySelectorAll(".orderedQty")[index].value = item.qty;
+          const card = document.querySelectorAll("#products .card")[index];
+
+card.querySelector(".orderedQty").value = item.ordered || "";
+
+card.querySelector(".missingQty").value = item.missing || 0;
+
+card.querySelector(".deliveredQty").value = item.delivered || "";
+
+card.querySelector(".verifiedCheck").checked = item.verified || false;
         }
       });
     });
