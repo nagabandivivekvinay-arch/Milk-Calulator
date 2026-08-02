@@ -264,7 +264,7 @@ Price :
 
 <div class="row">
 🚚 Delivered :
-<input type="number" class="deliveredQty" readonly>
+<input type="number" class="deliveredQty">
 </div>
 
 <div class="row">
@@ -327,6 +327,9 @@ document.addEventListener("change", function(e) {
 
         if (missing > 0) {
             delivered = ordered - missing;
+        } else {
+            delivered = ordered;
+        }
         }
 
         card.querySelector(".deliveredQty").value = delivered;
