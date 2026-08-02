@@ -134,8 +134,25 @@ button:hover {
 
 <button id="saveBtn">💾 Save Today’s Entry</button>
 <button id="loadBtn">📂 Load Selected Date</button>
+<button id="verifyBtn">🚚 Verify Today's Delivery</button>
 
 <div id="products"></div>
+
+  <!-- Delivery Verification -->
+<div id="verificationSection" style="display:none;">
+
+  <div class="header">
+    <h2>🚚 Morning Delivery Verification</h2>
+    <div>Compare Expected vs Received Packets</div>
+  </div>
+
+  <div id="verificationProducts"></div>
+
+  <button id="saveVerificationBtn">
+    ✅ Save Verification
+  </button>
+
+</div>
 
 <div class="card">
 🛢️ Oil Tin Minus:
@@ -324,7 +341,95 @@ let link=`upi://pay?pa=${upi}&pn=Mulka Sampath&am=${amount}&cu=INR`;
 
 window.location.href=link;
 
+.verify-card{
+    background:#ffffff;
+    border-radius:16px;
+    padding:16px;
+    margin-bottom:15px;
+    box-shadow:0 5px 12px rgba(0,0,0,.08);
 }
+
+.verify-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:10px;
+    gap:10px;
+}
+
+.verify-status{
+    margin-top:10px;
+    font-weight:bold;
+    font-size:17px;
+}
+
+.correct{
+    color:#2e7d32;
+}
+
+.missing{
+    color:#d32f2f;
+}
+
+.extra{
+    color:#ef6c00;
+}
+
+.waiting{
+    color:#616161;
+}
+
+document.getElementById("verifyBtn").onclick = function () {
+
+    const container = document.getElementById("verificationProducts");
+    container.innerHTML = "";
+
+    document.getElementById("verificationSection").style.display = "block";
+
+    const productInputs = document.querySelectorAll("#products .card");
+
+    productInputs.forEach(card => {
+
+        const name = card.querySelector("strong").innerText;
+
+        const qty = Number(card.querySelector("input").value) || 0;
+
+        if(qty > 0){
+
+            const verifyCard = document.createElement("div");
+
+            verifyCard.className = "verify-card";
+
+            verifyCard.innerHTML = `
+                <strong>${name}</strong>
+
+                <div class="verify-row">
+                    <span>📦 Expected : <b>${qty}</b></span>
+                </div>
+
+                <div class="verify-row">
+                    <span>📥 Received :</span>
+
+                    <input
+                        type="number"
+                        min="0"
+                        class="receivedQty"
+                        data-expected="${qty}">
+                </div>
+
+                <div class="verify-status waiting">
+                    ⏳ Waiting
+                </div>
+            `;
+
+            container.appendChild(verifyCard);
+
+        }
+
+    });
+
+};
+
 
 </script>
 
