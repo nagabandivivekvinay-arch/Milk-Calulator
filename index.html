@@ -327,9 +327,6 @@ document.addEventListener("change", function(e) {
 
         if (missing > 0) {
             delivered = ordered - missing;
-        } else {
-            delivered = ordered;
-        }
         }
 
         card.querySelector(".deliveredQty").value = delivered;
